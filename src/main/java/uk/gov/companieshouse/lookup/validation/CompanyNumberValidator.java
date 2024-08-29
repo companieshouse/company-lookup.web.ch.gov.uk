@@ -23,11 +23,14 @@ public class CompanyNumberValidator implements ConstraintValidator<CompanyNumber
                 .addConstraintViolation();
             return false;
         }
-        if(!COMPANY_NUMBER_PATTERN.matcher(companyNumber).matches()){
+
+        if(COMPANY_NUMBER_PATTERN.matcher(companyNumber).matches()){
+            return true;
+        }
+        else{
             context.buildConstraintViolationWithTemplate("{company.number.pattern.message}")
                     .addConstraintViolation();
             return false;
         }
-        return true;
     }
 }
