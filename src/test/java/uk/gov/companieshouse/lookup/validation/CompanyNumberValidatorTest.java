@@ -46,10 +46,23 @@ public class CompanyNumberValidatorTest {
     }
 
     @Test
-    void testCompanyNumberSize() {
+    void testCompanyNumberSizeMoreThanEight() {
         //when
         when(context.buildConstraintViolationWithTemplate(anyString())).thenReturn(constraintViolationBuilder);
         boolean actual = validator.isValid("123456789", context);
+        ArgumentCaptor<String> stringArgumentCaptor = ArgumentCaptor.forClass(String.class);
+
+        //then
+        verify(context).buildConstraintViolationWithTemplate(stringArgumentCaptor.capture());
+        assertTrue(stringArgumentCaptor.getValue().contains("company.number.Size.message"));
+        assertFalse(actual);
+    }
+
+    @Test
+    void testCompanyNumberSizeLessThanEight() {
+        //when
+        when(context.buildConstraintViolationWithTemplate(anyString())).thenReturn(constraintViolationBuilder);
+        boolean actual = validator.isValid("123456", context);
         ArgumentCaptor<String> stringArgumentCaptor = ArgumentCaptor.forClass(String.class);
 
         //then
