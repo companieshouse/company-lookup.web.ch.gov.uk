@@ -13,16 +13,7 @@
 
     <form id="lookup-form" th:action="@{''}" th:object="${companyLookup}" class="form" method="post">
 
-      <div th:replace="fragments/globalErrors :: globalErrors"></div>
-
-      <script>
-        window.onload = function(){
-          var elementToRemove = document.getElementById("error-summary-subheading");
-          if(elementToRemove){
-            elementToRemove.remove();
-          }
-        }
-      </script>
+      <div th:replace="fragments/errors :: errors"></div>
 
       <div class="govuk-form-group"
         th:classappend="${#fields.hasErrors('companyNumber')} ? 'govuk-form-group--error' : ''">
