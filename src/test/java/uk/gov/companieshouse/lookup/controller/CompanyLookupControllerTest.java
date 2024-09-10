@@ -64,47 +64,49 @@ class CompanyLookupControllerTest {
     private CompanyLookupController companyLookupController;
 
     @BeforeEach
-    private void setUpBeforeEAch() {
-        this.mockMvc = MockMvcBuilders.standaloneSetup(companyLookupController).setControllerAdvice(new RequestExceptionHandler()).build();
+    public void setUpBeforeEAch() {
+        this.mockMvc = MockMvcBuilders.standaloneSetup(companyLookupController)
+                .setControllerAdvice(new RequestExceptionHandler()).build();
     }
 
     @Test
     @DisplayName("Get Company Lookup - Success")
     void getCompanyLookup() throws Exception {
         this.mockMvc.perform(get(COMPANY_LOOKUP_URL, FORWARD_URL_PARAM))
-            .andDo(print()).andExpect(status().isOk())
-            .andExpect(view().name(TEMPLATE))
-            .andExpect(model().attributeExists(MODEL_ATTRIBUTE)).andReturn();
+                .andDo(print()).andExpect(status().isOk())
+                .andExpect(view().name(TEMPLATE))
+                .andExpect(model().attributeExists(MODEL_ATTRIBUTE)).andReturn();
     }
 
     @Test
     @DisplayName("Get Company Lookup - Failed, bad forward URL")
     void getCompanyLookupWhenForwardUrlBad() throws Exception {
         this.mockMvc.perform(get(COMPANY_LOOKUP_URL, "@:bad-forward-url"))
-            .andDo(print())
-            .andExpect(status().isBadRequest())
-            .andExpect(view().name(ERROR_TEMPLATE))
-            .andExpect(model().attributeDoesNotExist(MODEL_ATTRIBUTE))
-            .andReturn();
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(view().name(ERROR_TEMPLATE))
+                .andExpect(model().attributeDoesNotExist(MODEL_ATTRIBUTE))
+                .andReturn();
     }
 
     @Test
     @DisplayName("Get Company Lookup Without Number - Success")
     void getCompanyLookupWithoutNumber() throws Exception {
         this.mockMvc.perform(get(COMPANY_LOOKUP_NO_NUMBER_URL, FORWARD_URL_PARAM))
-            .andDo(print()).andExpect(status().is3xxRedirection())
-            .andExpect(view().name(UrlBasedViewResolver.REDIRECT_URL_PREFIX + FORWARD_URL_PARAM));
+                .andDo(print()).andExpect(status().is3xxRedirection())
+                .andExpect(
+                        view().name(UrlBasedViewResolver.REDIRECT_URL_PREFIX + FORWARD_URL_PARAM));
     }
 
     @Test
     @DisplayName("Get Company Lookup Without Number - Failed, bad forward URL")
     void getCompanyLookupWithoutNumberWhenForwardUrlBad() throws Exception {
         this.mockMvc.perform(get(COMPANY_LOOKUP_NO_NUMBER_URL, "@:bad-forward-url"))
-            .andDo(print())
-            .andExpect(status().isBadRequest())
-            .andExpect(view().name(ERROR_TEMPLATE))
-            .andExpect(model().attributeDoesNotExist(MODEL_ATTRIBUTE))
-            .andReturn();
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(view().name(ERROR_TEMPLATE))
+                .andExpect(model().attributeDoesNotExist(MODEL_ATTRIBUTE))
+                .andReturn();
     }
 
     @Test
@@ -112,19 +114,21 @@ class CompanyLookupControllerTest {
     void postCompanyLookup() throws Exception {
         when(companyLookupService.getCompanyProfile(COMPANY_NUMBER)).thenReturn(company);
         this.mockMvc
-            .perform(post(COMPANY_LOOKUP_URL, FORWARD_URL_PARAM).param("companyNumber", COMPANY_NUMBER))
-            .andExpect(status().is3xxRedirection())
-            .andExpect(view().name(UrlBasedViewResolver.REDIRECT_URL_PREFIX + FORWARD_URL_PARAM));
+                .perform(post(COMPANY_LOOKUP_URL, FORWARD_URL_PARAM).param("companyNumber",
+                        COMPANY_NUMBER))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(
+                        view().name(UrlBasedViewResolver.REDIRECT_URL_PREFIX + FORWARD_URL_PARAM));
     }
 
     @Test
     @DisplayName("Post Company Lookup - Fail bind error")
     void postCompanyLookupBindFail() throws Exception {
         this.mockMvc.perform(post(COMPANY_LOOKUP_URL, FORWARD_URL_PARAM)
-            .param(TEST_PATH, "test"))
-            .andExpect(status().isOk())
-            .andExpect(view().name(TEMPLATE))
-            .andExpect(model().attributeExists(MODEL_ATTRIBUTE));
+                        .param(TEST_PATH, "test"))
+                .andExpect(status().isOk())
+                .andExpect(view().name(TEMPLATE))
+                .andExpect(model().attributeExists(MODEL_ATTRIBUTE));
     }
 
     @Test
@@ -132,9 +136,10 @@ class CompanyLookupControllerTest {
     void postCompanyLookupFail() throws Exception {
         when(companyLookupService.getCompanyProfile(COMPANY_NUMBER)).thenReturn(null);
         this.mockMvc
-            .perform(post(COMPANY_LOOKUP_URL, FORWARD_URL_PARAM).param("companyNumber", COMPANY_NUMBER))
-            .andExpect(status().isOk())
-            .andExpect(view().name(TEMPLATE));
+                .perform(post(COMPANY_LOOKUP_URL, FORWARD_URL_PARAM).param("companyNumber",
+                        COMPANY_NUMBER))
+                .andExpect(status().isOk())
+                .andExpect(view().name(TEMPLATE));
     }
 
     @Test

@@ -1,20 +1,19 @@
 package uk.gov.companieshouse.lookup.validation;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import jakarta.validation.ConstraintValidatorContext;
+import jakarta.validation.ConstraintValidatorContext.ConstraintViolationBuilder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-
-import javax.validation.ConstraintValidatorContext;
-import javax.validation.ConstraintValidatorContext.ConstraintViolationBuilder;
-
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class CompanyNumberValidatorTest {
@@ -35,7 +34,8 @@ public class CompanyNumberValidatorTest {
     @Test
     void testCompanyNumberIsBlank() {
         //when
-        when(context.buildConstraintViolationWithTemplate(anyString())).thenReturn(constraintViolationBuilder);
+        when(context.buildConstraintViolationWithTemplate(anyString())).thenReturn(
+                constraintViolationBuilder);
         boolean actual = validator.isValid(null, context);
         ArgumentCaptor<String> stringArgumentCaptor = ArgumentCaptor.forClass(String.class);
 
@@ -48,7 +48,8 @@ public class CompanyNumberValidatorTest {
     @Test
     void testCompanyNumberSizeMoreThanEight() {
         //when
-        when(context.buildConstraintViolationWithTemplate(anyString())).thenReturn(constraintViolationBuilder);
+        when(context.buildConstraintViolationWithTemplate(anyString())).thenReturn(
+                constraintViolationBuilder);
         boolean actual = validator.isValid("123456789", context);
         ArgumentCaptor<String> stringArgumentCaptor = ArgumentCaptor.forClass(String.class);
 
@@ -61,7 +62,8 @@ public class CompanyNumberValidatorTest {
     @Test
     void testCompanyNumberSizeLessThanEight() {
         //when
-        when(context.buildConstraintViolationWithTemplate(anyString())).thenReturn(constraintViolationBuilder);
+        when(context.buildConstraintViolationWithTemplate(anyString())).thenReturn(
+                constraintViolationBuilder);
         boolean actual = validator.isValid("123456", context);
         ArgumentCaptor<String> stringArgumentCaptor = ArgumentCaptor.forClass(String.class);
 
@@ -74,7 +76,8 @@ public class CompanyNumberValidatorTest {
     @Test
     void testCompanyNumberPattern() {
         //when
-        when(context.buildConstraintViolationWithTemplate(anyString())).thenReturn(constraintViolationBuilder);
+        when(context.buildConstraintViolationWithTemplate(anyString())).thenReturn(
+                constraintViolationBuilder);
         boolean actual = validator.isValid("ac123456", context);
         ArgumentCaptor<String> stringArgumentCaptor = ArgumentCaptor.forClass(String.class);
 
