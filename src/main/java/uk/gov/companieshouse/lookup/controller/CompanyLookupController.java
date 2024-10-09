@@ -1,8 +1,8 @@
 package uk.gov.companieshouse.lookup.controller;
 
+import jakarta.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
-import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -27,28 +27,49 @@ import uk.gov.companieshouse.lookup.validation.ValidationHandler;
 @RequestMapping("/company-lookup")
 public class CompanyLookupController {
 
+    public static final String NO_COMPANY_OPTION = "noCompanyOption";
     private static final String COMPANY_LOOKUP = "lookup/companyLookup";
     private static final String INVALID_FORWARD_URL = "Invalid forward URL: [%s]";
-    public static final String NO_COMPANY_OPTION = "noCompanyOption";
-
     @Autowired
     private CompanyLookupService companyLookupService;
 
     @Autowired
     private ValidationHandler validationHandler;
 
+    /**
+     * Gets company lookup.
+     *
+     * @param forward         the forward
+     * @param forwardResult   the forward result
+     * @param model           the model
+     * @param noCompanyOption the no company option
+     * @return the company lookup
+     * @throws InvalidRequestException the invalid request exception
+     */
     @GetMapping("/search")
-    public String getCompanyLookup(@Valid ForwardUrl forward, BindingResult forwardResult, Model model,
-        @RequestParam(name = NO_COMPANY_OPTION, required = false) String noCompanyOption) throws InvalidRequestException {
-        if(forwardResult.hasErrors()) {
-            throw new InvalidRequestException(String.format(INVALID_FORWARD_URL, forward.getForward()));
+    public String getCompanyLookup(@Valid @ModelAttribute ForwardUrl forward,
+                                   BindingResult forwardResult, Model model,
+                                   @RequestParam(name = NO_COMPANY_OPTION, required = false) String noCompanyOption)
+            throws InvalidRequestException {
+        if (forwardResult.hasErrors()) {
+            throw new InvalidRequestException(
+                    String.format(INVALID_FORWARD_URL, forward.getForward()));
         }
         CompanyLookup companyLookup = new CompanyLookup();
         model.addAttribute("companyLookup", companyLookup);
         model.addAttribute(NO_COMPANY_OPTION, noCompanyOption);
         return COMPANY_LOOKUP;
     }
-    
+
+    /**
+     * Gets company lookup no company.
+     *
+     * @param forward       the forward
+     * @param forwardResult the forward result
+     * @param model         the model
+     * @return the company lookup no company
+     * @throws InvalidRequestException the invalid request exception
+     */
     @GetMapping("/no-number")
     public String getCompanyLookupNoCompany(@Valid ForwardUrl forward, BindingResult forwardResult,
         Model model) throws InvalidRequestException {
@@ -56,11 +77,24 @@ public class CompanyLookupController {
             throw new InvalidRequestException(String.format(INVALID_FORWARD_URL, forward.getForward()));
         }
         UriTemplate forwardURI = new UriTemplate(forward.getForward());
-        
+
         return UrlBasedViewResolver.REDIRECT_URL_PREFIX + forwardURI.expand("noCompany");
     }
-    
 
+
+    /**
+     * Post company lookup string.
+     *
+     * @param forward         the forward
+     * @param forwardResult   the forward result
+     * @param companyLookup   the company lookup
+     * @param bindingResult   the binding result
+     * @param model           the model
+     * @param noCompanyOption the no company option
+     * @return the string
+     * @throws InvalidRequestException the invalid request exception
+     * @throws ServiceException        the service exception
+     */
     @PostMapping("/search")
     public String postCompanyLookup(@Valid ForwardUrl forward, BindingResult forwardResult,
         @ModelAttribute("companyLookup") @Valid CompanyLookup companyLookup,
@@ -90,8 +124,8 @@ public class CompanyLookupController {
             return COMPANY_LOOKUP;
         }
 
-        UriTemplate forwardURI = new UriTemplate(forward.getForward());
-        return UrlBasedViewResolver.REDIRECT_URL_PREFIX +
-                forwardURI.expand(company.getCompanyNumber()).toString();
+        UriTemplate forwardUri = new UriTemplate(forward.getForward());
+        return UrlBasedViewResolver.REDIRECT_URL_PREFIX
+                + forwardUri.expand(company.getCompanyNumber()).toString();
     }
 }
