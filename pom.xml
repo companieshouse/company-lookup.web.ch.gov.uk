@@ -41,7 +41,7 @@
     <web-security-java.version>3.1.0</web-security-java.version>
 
     <!-- Security -->
-    <spring-security-core.version>6.3.4</spring-security-core.version>
+    <spring-security-core.version>6.3.5</spring-security-core.version>
     <spring-security-web.version>6.3.4</spring-security-web.version>
     <spring-security-config.version>6.3.4</spring-security-config.version>
 
