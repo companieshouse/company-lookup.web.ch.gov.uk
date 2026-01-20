@@ -224,7 +224,7 @@
         <artifactId>commons-lang3</artifactId>
         <version>3.19.0</version>
     </dependency>
-    <!-- manual override of version from spring-boot-starter-logging (CVE-2025-68161) -->
+    <!--  manual override of version from spring-boot-starter-logging (CVE-2025-68161) -->
     <dependency>
       <groupId>org.apache.logging.log4j</groupId>
       <artifactId>log4j-api</artifactId>
