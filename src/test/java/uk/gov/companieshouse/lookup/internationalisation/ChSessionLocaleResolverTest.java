@@ -103,4 +103,14 @@ class ChSessionLocaleResolverTest {
         assertEquals(welshLocale.toLanguageTag(), languageTagInSession);
         verify(session).store();
     }
+
+    @Test
+    @DisplayName("Set default locale and resolves to the default locale if no locale is in the session")
+    void testSetDefaultLocaleAndResolveDefaultLocale() {
+        setupSessionData(null);
+        localeResolver.setDefaultLocale(Locale.US);
+        Locale locale = localeResolver.resolveLocale(request);
+
+        assertEquals(Locale.US, locale);
+    }
 }
