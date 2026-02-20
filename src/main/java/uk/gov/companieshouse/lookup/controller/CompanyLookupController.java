@@ -3,6 +3,7 @@ package uk.gov.companieshouse.lookup.controller;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -15,6 +16,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.view.UrlBasedViewResolver;
 import org.springframework.web.util.UriTemplate;
+import uk.gov.companieshouse.logging.Logger;
+import uk.gov.companieshouse.logging.LoggerFactory;
+import uk.gov.companieshouse.lookup.Application;
 import uk.gov.companieshouse.lookup.exception.InvalidRequestException;
 import uk.gov.companieshouse.lookup.exception.ServiceException;
 import uk.gov.companieshouse.lookup.model.Company;
@@ -31,6 +35,8 @@ public class CompanyLookupController {
     public static final String NO_COMPANY_OPTION = "noCompanyOption";
     private static final String COMPANY_LOOKUP = "lookup/companyLookup";
     private static final String INVALID_FORWARD_URL = "Invalid forward URL: [%s]";
+    private static final Logger LOGGER =
+            LoggerFactory.getLogger(Application.APPLICATION_NAME_SPACE);
 
     private final CompanyLookupService companyLookupService;
 
@@ -61,9 +67,14 @@ public class CompanyLookupController {
             @RequestParam(name = NO_COMPANY_OPTION, required = false) String noCompanyOption)
             throws InvalidRequestException {
         if (forwardResult.hasErrors()) {
+            LOGGER.errorRequest(httpServletRequest, String.format(INVALID_FORWARD_URL, forward.getForward()));
+
             throw new InvalidRequestException(
                     String.format(INVALID_FORWARD_URL, forward.getForward()));
         }
+
+        LOGGER.infoRequest(httpServletRequest, "Getting company lookup", new HashMap<>());
+
         CompanyLookup companyLookup = new CompanyLookup();
 
         model.addAttribute("companyLookup", companyLookup);
