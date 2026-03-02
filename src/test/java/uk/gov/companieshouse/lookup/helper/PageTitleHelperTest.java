@@ -10,10 +10,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ExtendWith(MockitoExtension.class)
-public class PageTitleHelperTest {
+class PageTitleHelperTest {
 
-    private final static String CS01_FORWARD_URL="/confirmation-statement/confirm-company?companyNumber={companyNumber}";
-    private final static String DEFAULT_FORWARD_URL="/random-service/confirm-company?companyNumber={companyNumber}";
+    private static final String CS01_FORWARD_URL="/confirmation-statement/confirm-company?companyNumber={companyNumber}";
+    private static final String DEFAULT_FORWARD_URL="/random-service/confirm-company?companyNumber={companyNumber}";
 
     private final PageTitleHelper titleHelper = new PageTitleHelper();
 
