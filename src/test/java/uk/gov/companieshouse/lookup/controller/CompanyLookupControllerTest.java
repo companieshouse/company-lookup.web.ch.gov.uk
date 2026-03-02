@@ -51,8 +51,8 @@ class CompanyLookupControllerTest {
     private static final String COMPANY_NUMBER = "12345678";
     private static final String TITLE_ATTRIBUTE = "title";
     private static final String FORWARD_URL_CS01 = "/confirmation-statement/";
-    private static final String DEFAULT_TILE_PROPERTY = "company.number.title";
-    private static final String CS01_TILE_PROOERTY = "title.formtype.confirmation-statement";
+    private static final String DEFAULT_TITLE_PROPERTY = "company.number.title";
+    private static final String CS01_TITLE_PROPERTY = "title.formtype.confirmation-statement";
 
     @Autowired
     private WebApplicationContext webApplicationContext;
@@ -95,7 +95,7 @@ class CompanyLookupControllerTest {
                 .andExpect(view().name(TEMPLATE))
                 .andExpect(model().attributeExists(MODEL_ATTRIBUTE))
                 .andExpect(model().attributeExists(TITLE_ATTRIBUTE))
-                .andExpect(model().attribute(TITLE_ATTRIBUTE, DEFAULT_TILE_PROPERTY));
+                .andExpect(model().attribute(TITLE_ATTRIBUTE, DEFAULT_TITLE_PROPERTY));
     }
 
     @Test
@@ -339,6 +339,6 @@ class CompanyLookupControllerTest {
                 .andExpect(view().name(TEMPLATE))
                 .andExpect(model().attributeExists(MODEL_ATTRIBUTE))
                 .andExpect(model().attributeExists(TITLE_ATTRIBUTE))
-                .andExpect(model().attribute(TITLE_ATTRIBUTE, CS01_TILE_PROOERTY));
+                .andExpect(model().attribute(TITLE_ATTRIBUTE, CS01_TITLE_PROPERTY));
     }
 }
