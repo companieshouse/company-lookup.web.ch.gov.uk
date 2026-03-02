@@ -28,12 +28,15 @@ import uk.gov.companieshouse.lookup.service.CompanyLookupService;
 import uk.gov.companieshouse.lookup.validation.ValidationError;
 import uk.gov.companieshouse.lookup.validation.ValidationHandler;
 
+import uk.gov.companieshouse.lookup.helper.PageTitleHelper;
+
 @Controller
 @RequestMapping("/company-lookup")
 public class CompanyLookupController {
 
     public static final String NO_COMPANY_OPTION = "noCompanyOption";
     private static final String COMPANY_LOOKUP = "lookup/companyLookup";
+    public static final String TITLE = "title";
     private static final String INVALID_FORWARD_URL = "Invalid forward URL: [%s]";
     private static final Logger LOGGER =
             LoggerFactory.getLogger(Application.APPLICATION_NAME_SPACE);
@@ -80,6 +83,9 @@ public class CompanyLookupController {
         model.addAttribute("companyLookup", companyLookup);
         model.addAttribute(NO_COMPANY_OPTION, noCompanyOption);
         model.addAttribute("onWelshJourney", httpServletRequest.getAttribute("onWelshJourney"));
+        PageTitleHelper titleHelper = new  PageTitleHelper();
+        String title = titleHelper.getPageTitleFromForwardURL(forward);
+        model.addAttribute(TITLE, title);
 
         return COMPANY_LOOKUP;
     }
@@ -127,6 +133,9 @@ public class CompanyLookupController {
             @RequestParam(name = NO_COMPANY_OPTION, required = false) String noCompanyOption)
             throws InvalidRequestException, ServiceException {
 
+        PageTitleHelper titleHelper = new  PageTitleHelper();
+        String title = titleHelper.getPageTitleFromForwardURL(forward);
+        model.addAttribute(TITLE, title);
         if (forwardResult.hasErrors()) {
             throw new InvalidRequestException(
                     String.format(INVALID_FORWARD_URL, forward.getForward()));

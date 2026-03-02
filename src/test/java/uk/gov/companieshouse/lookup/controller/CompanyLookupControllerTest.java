@@ -49,6 +49,10 @@ class CompanyLookupControllerTest {
     private static final String MODEL_ATTRIBUTE = "companyLookup";
     private static final String FORWARD_URL_PARAM = "forwardURL";
     private static final String COMPANY_NUMBER = "12345678";
+    private static final String TITLE_ATTRIBUTE = "title";
+    private static final String FORWARD_URL_CS01 = "/confirmation-statement/";
+    private static final String DEFAULT_TILE_PROPERTY = "company.number.title";
+    private static final String CS01_TILE_PROOERTY = "title.formtype.confirmation-statement";
 
     @Autowired
     private WebApplicationContext webApplicationContext;
@@ -89,7 +93,9 @@ class CompanyLookupControllerTest {
         this.mockMvc.perform(get(COMPANY_LOOKUP_URL, FORWARD_URL_PARAM))
                 .andDo(print()).andExpect(status().isOk())
                 .andExpect(view().name(TEMPLATE))
-                .andExpect(model().attributeExists(MODEL_ATTRIBUTE));
+                .andExpect(model().attributeExists(MODEL_ATTRIBUTE))
+                .andExpect(model().attributeExists(TITLE_ATTRIBUTE))
+                .andExpect(model().attribute(TITLE_ATTRIBUTE, DEFAULT_TILE_PROPERTY));;
     }
 
     @Test
@@ -321,5 +327,18 @@ class CompanyLookupControllerTest {
         assertTrue(doc.selectFirst("#cookies-link").text().contains("Cookies"));
         assertTrue(doc.selectFirst("#contact-us-link").text().contains("Contact Us"));
         assertTrue(doc.selectFirst("#developer-link").text().contains("Developers"));
+    }
+
+    @Test
+    @DisplayName("Get Company Lookup - Confirmation Statement forward URL")
+    void getCompanyLookupConfirmationStatement() throws Exception {
+        when(chSessionLocaleResolver.resolveLocale(any())).thenReturn(Locale.ENGLISH);
+
+        this.mockMvc.perform(get(COMPANY_LOOKUP_URL, FORWARD_URL_CS01))
+                .andDo(print()).andExpect(status().isOk())
+                .andExpect(view().name(TEMPLATE))
+                .andExpect(model().attributeExists(MODEL_ATTRIBUTE))
+                .andExpect(model().attributeExists(TITLE_ATTRIBUTE))
+                .andExpect(model().attribute(TITLE_ATTRIBUTE, CS01_TILE_PROOERTY));
     }
 }
