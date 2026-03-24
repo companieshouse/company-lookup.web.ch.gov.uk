@@ -1,6 +1,5 @@
 package uk.gov.companieshouse.lookup.service.impl;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.UriTemplate;
@@ -19,8 +18,11 @@ public class CompanyLookupServiceImpl implements CompanyLookupService {
     private static final UriTemplate GET_COMPANY_URI =
         new UriTemplate("/company/{companyNumber}");
 
-    @Autowired
-    private ApiClientService apiClientService;
+    private final ApiClientService apiClientService;
+
+    public CompanyLookupServiceImpl(final ApiClientService apiClientService) {
+        this.apiClientService = apiClientService;
+    }
 
     @Override
     public Company getCompanyProfile(String companyNumber)
