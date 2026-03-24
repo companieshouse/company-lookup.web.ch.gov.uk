@@ -21,7 +21,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
@@ -60,19 +60,19 @@ class CompanyLookupControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
-    @MockBean
+    @MockitoBean
     private CompanyLookupService companyLookupService;
 
-    @MockBean
+    @MockitoBean
     private ValidationHandler validationHandler;
 
-    @MockBean
+    @MockitoBean
     private Company company;
 
-    @MockBean
+    @MockitoBean
     private ApiErrorResponseException apiErrorResponseException;
 
-    @MockBean
+    @MockitoBean
     private ChSessionLocaleResolver chSessionLocaleResolver;
 
     @BeforeAll

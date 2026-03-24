@@ -22,7 +22,7 @@ import org.springframework.context.MessageSource;
 import org.springframework.web.servlet.support.RequestContextUtils;
 
 @ExtendWith(MockitoExtension.class)
-public class CompanyNumberValidatorTest {
+class CompanyNumberValidatorTest {
 
     private CompanyNumberValidator validator;
 
