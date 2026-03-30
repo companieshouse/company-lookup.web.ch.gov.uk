@@ -29,7 +29,7 @@
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <jib-maven-plugin.version>3.4.6</jib-maven-plugin.version>
     <commons-beanutils.version>1.11.0</commons-beanutils.version>
-    <opentelemetry-instrumentation-bom.version>2.24.0</opentelemetry-instrumentation-bom.version>
+    <opentelemetry-instrumentation-bom.version>2.26.0</opentelemetry-instrumentation-bom.version>
 
     <!-- Companies House -->
     <api-sdk-manager-java-library.version>3.0.13</api-sdk-manager-java-library.version>
@@ -39,7 +39,7 @@
     <sdk-manager-java.version>3.0.13</sdk-manager-java.version>
     <common-web-java.version>3.0.43</common-web-java.version>
     <web-security-java.version>3.1.10</web-security-java.version>
-
+    <kotlin-stdlib.version>2.3.20</kotlin-stdlib.version>
     <!-- Test -->
     <jsoup.version>1.21.2</jsoup.version>
     <assertj-core.version>3.27.7</assertj-core.version>
@@ -169,13 +169,13 @@
         <groupId>uk.gov.companieshouse</groupId>
         <artifactId>web-security-java</artifactId>
         <version>${web-security-java.version}</version>
-      <exclusions>
-        <!-- CVE-2024-57699 -->
-        <exclusion>
-          <groupId>net.minidev</groupId>
-          <artifactId>json-smart</artifactId>
-        </exclusion>
-      </exclusions>
+    </dependency>
+
+    <!-- CVE-2020-29582(5.3) -->
+    <dependency>
+      <groupId>org.jetbrains.kotlin</groupId>
+      <artifactId>kotlin-stdlib</artifactId>
+      <version>${kotlin-stdlib.version}</version>
     </dependency>
 
     <!-- Test scope -->
