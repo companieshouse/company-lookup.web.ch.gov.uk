@@ -95,7 +95,8 @@ class CompanyLookupControllerTest {
                 .andExpect(view().name(TEMPLATE))
                 .andExpect(model().attributeExists(MODEL_ATTRIBUTE))
                 .andExpect(model().attributeExists(TITLE_ATTRIBUTE))
-                .andExpect(model().attribute(TITLE_ATTRIBUTE, DEFAULT_TITLE_PROPERTY));
+                .andExpect(model().attribute(TITLE_ATTRIBUTE, DEFAULT_TITLE_PROPERTY))
+                .andExpect(model().attribute("backLink", "javascript:window.history.back()"));
     }
 
     @Test

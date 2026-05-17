@@ -35,6 +35,8 @@ import uk.gov.companieshouse.lookup.helper.PageTitleHelper;
 public class CompanyLookupController {
 
     public static final String NO_COMPANY_OPTION = "noCompanyOption";
+    public static final String BACK_LINK_KEY = "backLink";
+    private static final String JS_HISTORY_BACK = "javascript:window.history.back()";
     private static final String COMPANY_LOOKUP = "lookup/companyLookup";
     public static final String TITLE = "title";
     private static final String INVALID_FORWARD_URL = "Invalid forward URL: [%s]";
@@ -86,6 +88,7 @@ public class CompanyLookupController {
         PageTitleHelper titleHelper = new  PageTitleHelper();
         String title = titleHelper.getPageTitleFromForwardURL(forward);
         model.addAttribute(TITLE, title);
+        model.addAttribute(BACK_LINK_KEY, JS_HISTORY_BACK);
 
         return COMPANY_LOOKUP;
     }
