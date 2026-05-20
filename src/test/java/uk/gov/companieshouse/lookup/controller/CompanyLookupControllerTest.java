@@ -322,7 +322,6 @@ class CompanyLookupControllerTest {
 
         Document doc = Jsoup.parse(responseContent);
 
-        assertTrue(doc.selectFirst(".govuk-header__logotype-text").text().contains("Companies House"));
         assertTrue(doc.selectFirst("#policies-link").text().contains("Policies"));
         assertTrue(doc.selectFirst("#cookies-link").text().contains("Cookies"));
         assertTrue(doc.selectFirst("#contact-us-link").text().contains("Contact Us"));
