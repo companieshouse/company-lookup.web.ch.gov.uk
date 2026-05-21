@@ -21,6 +21,7 @@ import uk.gov.companieshouse.logging.LoggerFactory;
 import uk.gov.companieshouse.lookup.Application;
 import uk.gov.companieshouse.lookup.exception.InvalidRequestException;
 import uk.gov.companieshouse.lookup.exception.ServiceException;
+import uk.gov.companieshouse.lookup.helper.LinkUtils;
 import uk.gov.companieshouse.lookup.model.Company;
 import uk.gov.companieshouse.lookup.model.CompanyLookup;
 import uk.gov.companieshouse.lookup.model.ForwardUrl;
@@ -35,6 +36,8 @@ import uk.gov.companieshouse.lookup.helper.PageTitleHelper;
 public class CompanyLookupController {
 
     public static final String NO_COMPANY_OPTION = "noCompanyOption";
+    public static final String BACK_LINK_KEY = "backLink";
+    public static final String BACK_LINK_PARAM = "backLink";
     private static final String COMPANY_LOOKUP = "lookup/companyLookup";
     public static final String TITLE = "title";
     private static final String INVALID_FORWARD_URL = "Invalid forward URL: [%s]";
@@ -45,11 +48,15 @@ public class CompanyLookupController {
 
     private final ValidationHandler validationHandler;
 
+    private final LinkUtils linkUtils;
+
     @Autowired
     public CompanyLookupController(CompanyLookupService companyLookupService,
-            ValidationHandler validationHandler) {
+            ValidationHandler validationHandler,
+            LinkUtils linkUtils) {
         this.companyLookupService = companyLookupService;
         this.validationHandler = validationHandler;
+        this.linkUtils = linkUtils;
     }
 
     /**
@@ -67,7 +74,8 @@ public class CompanyLookupController {
             BindingResult forwardResult,
             HttpServletRequest httpServletRequest,
             Model model,
-            @RequestParam(name = NO_COMPANY_OPTION, required = false) String noCompanyOption)
+            @RequestParam(name = NO_COMPANY_OPTION, required = false) String noCompanyOption,
+            @RequestParam(name = BACK_LINK_PARAM, required = false) String backLink)
             throws InvalidRequestException {
         if (forwardResult.hasErrors()) {
             LOGGER.errorRequest(httpServletRequest, String.format(INVALID_FORWARD_URL, forward.getForward()));
@@ -86,6 +94,8 @@ public class CompanyLookupController {
         PageTitleHelper titleHelper = new  PageTitleHelper();
         String title = titleHelper.getPageTitleFromForwardURL(forward);
         model.addAttribute(TITLE, title);
+        linkUtils.resolveRelativeLink(backLink).ifPresent(validRelativeLink -> model.addAttribute(BACK_LINK_KEY,
+                validRelativeLink));
 
         return COMPANY_LOOKUP;
     }

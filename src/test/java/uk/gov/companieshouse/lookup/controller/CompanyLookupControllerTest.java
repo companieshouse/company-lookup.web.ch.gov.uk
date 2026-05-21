@@ -1,6 +1,7 @@
 package uk.gov.companieshouse.lookup.controller;
 
 import java.util.Locale;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -31,6 +32,7 @@ import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.servlet.view.UrlBasedViewResolver;
 import uk.gov.companieshouse.api.error.ApiErrorResponseException;
 import uk.gov.companieshouse.lookup.config.MessageConfig;
+import uk.gov.companieshouse.lookup.helper.LinkUtils;
 import uk.gov.companieshouse.lookup.internationalisation.ChSessionLocaleResolver;
 import uk.gov.companieshouse.lookup.model.Company;
 import uk.gov.companieshouse.lookup.service.CompanyLookupService;
@@ -53,6 +55,7 @@ class CompanyLookupControllerTest {
     private static final String FORWARD_URL_CS01 = "/confirmation-statement/";
     private static final String DEFAULT_TITLE_PROPERTY = "company.number.title";
     private static final String CS01_TITLE_PROPERTY = "title.formtype.confirmation-statement";
+    private static final String VALID_BACK_LINK = "/confirmation-statement/";
 
     @Autowired
     private WebApplicationContext webApplicationContext;
@@ -75,6 +78,9 @@ class CompanyLookupControllerTest {
     @MockitoBean
     private ChSessionLocaleResolver chSessionLocaleResolver;
 
+    @MockitoBean
+    private LinkUtils linkUtils;
+
     @BeforeAll
     public static void setUp() {
         System.setProperty("COOKIE_NAME", "__SID");
@@ -83,6 +89,7 @@ class CompanyLookupControllerTest {
     @BeforeEach
     public void setUpBeforeEach() {
         this.mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
+        when(linkUtils.resolveRelativeLink(any())).thenReturn(Optional.empty());
     }
 
     @Test
@@ -94,8 +101,37 @@ class CompanyLookupControllerTest {
                 .andDo(print()).andExpect(status().isOk())
                 .andExpect(view().name(TEMPLATE))
                 .andExpect(model().attributeExists(MODEL_ATTRIBUTE))
-                .andExpect(model().attributeExists(TITLE_ATTRIBUTE))
-                .andExpect(model().attribute(TITLE_ATTRIBUTE, DEFAULT_TITLE_PROPERTY));
+                .andExpect(model().attribute(TITLE_ATTRIBUTE, DEFAULT_TITLE_PROPERTY))
+                .andExpect(model().attributeDoesNotExist("backLink"));
+    }
+
+    @Test
+    @DisplayName("Get Company Lookup - when valid back link is provided then model includes backLink value")
+    void getCompanyLookupWhenValidBackLinkProvidedThenModelIncludesBackLinkValue() throws Exception {
+        when(chSessionLocaleResolver.resolveLocale(any())).thenReturn(Locale.ENGLISH);
+        when(linkUtils.resolveRelativeLink(VALID_BACK_LINK)).thenReturn(Optional.of(VALID_BACK_LINK));
+
+        this.mockMvc.perform(get(COMPANY_LOOKUP_URL, FORWARD_URL_PARAM)
+                        .param("backLink", VALID_BACK_LINK))
+                .andDo(print()).andExpect(status().isOk())
+                .andExpect(view().name(TEMPLATE))
+                .andExpect(model().attribute("backLink", VALID_BACK_LINK));
+    }
+
+    @Test
+    @DisplayName("Get Company Lookup - when invalid back link is provided then model excludes backLink")
+    void getCompanyLookupWhenInvalidBackLinkProvidedThenModelExcludesBackLink() throws Exception {
+        when(chSessionLocaleResolver.resolveLocale(any())).thenReturn(Locale.ENGLISH);
+
+        String invalidBackLink = "https://example.com";
+
+        when(linkUtils.resolveRelativeLink(invalidBackLink)).thenReturn(Optional.empty());
+
+        this.mockMvc.perform(get(COMPANY_LOOKUP_URL, FORWARD_URL_PARAM)
+                        .param("backLink", invalidBackLink))
+                .andDo(print()).andExpect(status().isOk())
+                .andExpect(view().name(TEMPLATE))
+                .andExpect(model().attributeDoesNotExist("backLink"));
     }
 
     @Test
