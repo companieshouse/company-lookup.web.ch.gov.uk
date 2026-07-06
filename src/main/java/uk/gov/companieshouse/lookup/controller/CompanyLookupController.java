@@ -5,6 +5,8 @@ import jakarta.validation.Valid;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+
+import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -173,7 +175,7 @@ public class CompanyLookupController {
             return COMPANY_LOOKUP;
         }
 
-        if (activeOnly && !ACTIVE.equals(company.getStatus())) {
+        if (BooleanUtils.isTrue(activeOnly) && !ACTIVE.equals(company.getStatus())) {
             List<ValidationError> validationErrors = new ArrayList<>();
             ValidationError error = new ValidationError();
             error.setFieldPath("companyNumber");
