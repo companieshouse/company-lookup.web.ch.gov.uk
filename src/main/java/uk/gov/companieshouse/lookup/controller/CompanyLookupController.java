@@ -143,7 +143,7 @@ public class CompanyLookupController {
             @ModelAttribute("companyLookup") @Valid CompanyLookup companyLookup,
             BindingResult bindingResult, Model model,
             @RequestParam(name = NO_COMPANY_OPTION, required = false) String noCompanyOption,
-            @RequestParam(name = ACTIVE_ONLY, required = false) boolean activeOnly)
+            @RequestParam(name = ACTIVE_ONLY, required = false) Boolean activeOnly)
             throws InvalidRequestException, ServiceException {
 
         PageTitleHelper titleHelper = new  PageTitleHelper();
