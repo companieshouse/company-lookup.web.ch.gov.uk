@@ -376,4 +376,53 @@ class CompanyLookupControllerTest {
                 .andExpect(model().attributeExists(TITLE_ATTRIBUTE))
                 .andExpect(model().attribute(TITLE_ATTRIBUTE, CS01_TITLE_PROPERTY));
     }
+
+
+    @Test
+    @DisplayName("Post Company Lookup - Active company with activeOnly parameter")
+    void postCompanyLookupActiveParamActive() throws Exception {
+        when(chSessionLocaleResolver.resolveLocale(any())).thenReturn(Locale.ENGLISH);
+        when(company.getStatus()).thenReturn("active");
+
+        when(companyLookupService.getCompanyProfile(COMPANY_NUMBER)).thenReturn(company);
+        this.mockMvc
+                .perform(post(COMPANY_LOOKUP_URL, FORWARD_URL_PARAM)
+                        .param("companyNumber", COMPANY_NUMBER)
+                        .param("activeOnly", "true"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(
+                        view().name(UrlBasedViewResolver.REDIRECT_URL_PREFIX + FORWARD_URL_PARAM))
+                .andReturn();
+    }
+
+    @Test
+    @DisplayName("Post Company Lookup - Inactive company with activeOnly parameter")
+    void postCompanyLookupActiveParamInactive() throws Exception {
+        when(chSessionLocaleResolver.resolveLocale(any())).thenReturn(Locale.ENGLISH);
+        when(company.getStatus()).thenReturn("inactive");
+
+        when(companyLookupService.getCompanyProfile(COMPANY_NUMBER)).thenReturn(company);
+        this.mockMvc
+                .perform(post(COMPANY_LOOKUP_URL, FORWARD_URL_PARAM)
+                        .param("companyNumber", COMPANY_NUMBER)
+                        .param("activeOnly", "true"))
+                .andExpect(status().isOk())
+                .andExpect(view().name(TEMPLATE));
+    }
+
+    @Test
+    @DisplayName("Post Company Lookup - inactive company without activeOnly parameter")
+    void postCompanyLookupNoActiveParamInactive() throws Exception {
+        when(chSessionLocaleResolver.resolveLocale(any())).thenReturn(Locale.ENGLISH);
+        when(company.getStatus()).thenReturn("inactive");
+
+        when(companyLookupService.getCompanyProfile(COMPANY_NUMBER)).thenReturn(company);
+        this.mockMvc
+                .perform(post(COMPANY_LOOKUP_URL, FORWARD_URL_PARAM)
+                        .param("companyNumber", COMPANY_NUMBER))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(
+                        view().name(UrlBasedViewResolver.REDIRECT_URL_PREFIX + FORWARD_URL_PARAM))
+                .andReturn();
+    }
 }

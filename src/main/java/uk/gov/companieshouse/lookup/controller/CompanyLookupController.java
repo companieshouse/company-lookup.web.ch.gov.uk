@@ -38,6 +38,8 @@ public class CompanyLookupController {
     public static final String NO_COMPANY_OPTION = "noCompanyOption";
     public static final String BACK_LINK_KEY = "backLink";
     public static final String BACK_LINK_PARAM = "backLink";
+    public static final String ACTIVE_ONLY = "activeOnly";
+    public static final String ACTIVE = "active";
     private static final String COMPANY_LOOKUP = "lookup/companyLookup";
     public static final String TITLE = "title";
     private static final String INVALID_FORWARD_URL = "Invalid forward URL: [%s]";
@@ -140,7 +142,8 @@ public class CompanyLookupController {
     public String postCompanyLookup(@Valid ForwardUrl forward, BindingResult forwardResult,
             @ModelAttribute("companyLookup") @Valid CompanyLookup companyLookup,
             BindingResult bindingResult, Model model,
-            @RequestParam(name = NO_COMPANY_OPTION, required = false) String noCompanyOption)
+            @RequestParam(name = NO_COMPANY_OPTION, required = false) String noCompanyOption,
+            @RequestParam(name = ACTIVE_ONLY, required = false) boolean activeOnly)
             throws InvalidRequestException, ServiceException {
 
         PageTitleHelper titleHelper = new  PageTitleHelper();
@@ -164,6 +167,17 @@ public class CompanyLookupController {
             ValidationError error = new ValidationError();
             error.setFieldPath("companyNumber");
             error.setMessageKey("company.not.found");
+            validationErrors.add(error);
+            validationHandler.bindValidationErrors(bindingResult, validationErrors);
+            model.addAttribute(NO_COMPANY_OPTION, noCompanyOption);
+            return COMPANY_LOOKUP;
+        }
+
+        if (activeOnly && !ACTIVE.equals(company.getStatus())) {
+            List<ValidationError> validationErrors = new ArrayList<>();
+            ValidationError error = new ValidationError();
+            error.setFieldPath("companyNumber");
+            error.setMessageKey("company.not.active");
             validationErrors.add(error);
             validationHandler.bindValidationErrors(bindingResult, validationErrors);
             model.addAttribute(NO_COMPANY_OPTION, noCompanyOption);
