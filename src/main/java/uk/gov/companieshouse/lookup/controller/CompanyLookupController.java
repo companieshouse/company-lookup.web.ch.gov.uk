@@ -140,12 +140,15 @@ public class CompanyLookupController {
     public String postCompanyLookup(@Valid ForwardUrl forward, BindingResult forwardResult,
             @ModelAttribute("companyLookup") @Valid CompanyLookup companyLookup,
             BindingResult bindingResult, Model model,
-            @RequestParam(name = NO_COMPANY_OPTION, required = false) String noCompanyOption)
+            @RequestParam(name = NO_COMPANY_OPTION, required = false) String noCompanyOption,
+            @RequestParam(name = BACK_LINK_PARAM, required = false) String backLink)
             throws InvalidRequestException, ServiceException {
 
         PageTitleHelper titleHelper = new  PageTitleHelper();
         String title = titleHelper.getPageTitleFromForwardURL(forward);
         model.addAttribute(TITLE, title);
+        linkUtils.resolveRelativeLink(backLink).ifPresent(validRelativeLink -> model.addAttribute(BACK_LINK_KEY,
+                validRelativeLink));
         if (forwardResult.hasErrors()) {
             throw new InvalidRequestException(
                     String.format(INVALID_FORWARD_URL, forward.getForward()));
