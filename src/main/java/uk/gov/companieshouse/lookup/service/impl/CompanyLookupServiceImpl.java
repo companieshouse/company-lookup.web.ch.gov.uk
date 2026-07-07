@@ -48,6 +48,7 @@ public class CompanyLookupServiceImpl implements CompanyLookupService {
 
         Company company = new Company();
         company.setCompanyNumber(companyProfileApi.getCompanyNumber());
+        company.setStatus(companyProfileApi.getCompanyStatus());
 
         return company;
     }
