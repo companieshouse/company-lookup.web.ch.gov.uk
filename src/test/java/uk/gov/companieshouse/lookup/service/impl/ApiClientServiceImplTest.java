@@ -31,6 +31,13 @@ class ApiClientServiceImplTest {
     private ApiClientServiceImpl apiClientService;
 
     @Test
+    @DisplayName("Default constructor creates instance with EnvironmentReaderImpl")
+    void defaultConstructorCreatesInstance() {
+        ApiClientServiceImpl service = new ApiClientServiceImpl();
+        assertNotNull(service);
+    }
+
+    @Test
     @DisplayName("getApiClient uses API key authentication rather than OAuth session")
     void getApiClientUsesApiKeyAuthentication() {
         when(environmentReader.getMandatoryString(CHS_API_KEY)).thenReturn(TEST_API_KEY);
