@@ -36,10 +36,9 @@ class ChSessionLocaleResolverTest {
     private HttpServletRequest request;
 
     @Mock
-    HttpServletResponse response;
+    private HttpServletResponse response;
 
     private Map<String, Object> sessionData;
-    private Map<String, Object> extraData;
 
     @InjectMocks
     private ChSessionLocaleResolver localeResolver;
@@ -51,22 +50,38 @@ class ChSessionLocaleResolverTest {
         ReflectionTestUtils.setField(localeResolver, "defaultLocale", Locale.ENGLISH);
     }
 
-    private void initSessionDataMaps(String lang) {
+    // Language tag is now stored directly under the top-level shared session
+    // key "lang", not nested under "extra_data", so that it is shared
+    // correctly with other CHS services (e.g. authentication-service,
+    // your-companies-web) that use the same top-level key.
+    private void initSessionData(String lang) {
         sessionData = new HashMap<>();
-        extraData = new HashMap<>();
-        sessionData.put("extra_data", extraData);
         if (lang != null) {
-            extraData.put("lang", lang);
+            sessionData.put("lang", lang);
         }
     }
 
     private void setupSessionData(String lang) {
-        initSessionDataMaps(lang);
+        initSessionData(lang);
+        when(sessionProvider.getSessionDataFromContext()).thenReturn(sessionData);
+    }
+
+    // TEMPORARY (IDVA6-2788): some CHS services may still be writing the
+    // legacy nested "extra_data.lang" key instead of the shared top-level
+    // "lang" key. This sets up that legacy nested value only, with no
+    // top-level "lang" key present, to verify the fallback read path.
+    private void setupLegacyExtraDataSessionData(String lang) {
+        sessionData = new HashMap<>();
+        Map<String, String> extraData = new HashMap<>();
+        if (lang != null) {
+            extraData.put("lang", lang);
+        }
+        sessionData.put("extra_data", extraData);
         when(sessionProvider.getSessionDataFromContext()).thenReturn(sessionData);
     }
 
     private void setupSession() {
-        initSessionDataMaps(null);
+        initSessionData(null);
         when(sessionProvider.getSessionFromContext()).thenReturn(session);
         when(session.getData()).thenReturn(sessionData);
     }
@@ -86,7 +101,7 @@ class ChSessionLocaleResolverTest {
         setupSessionData("cy");
         Locale locale = localeResolver.resolveLocale(request);
 
-        Locale welshLocale = new Locale("cy");
+        Locale welshLocale = Locale.forLanguageTag("cy");
         assertEquals(welshLocale, locale);
     }
 
@@ -94,11 +109,11 @@ class ChSessionLocaleResolverTest {
     @DisplayName("Locale gets set in session when resolver sets locale")
     void testSetLocale() {
         setupSession();
-        Locale welshLocale = new Locale("cy");
+        Locale welshLocale = Locale.forLanguageTag("cy");
 
         localeResolver.setLocale(request, response, welshLocale);
 
-        String languageTagInSession = (String) extraData.get("lang");
+        String languageTagInSession = (String) session.getData().get("lang");
 
         assertEquals(welshLocale.toLanguageTag(), languageTagInSession);
         verify(session).store();
@@ -112,5 +127,32 @@ class ChSessionLocaleResolverTest {
         Locale locale = localeResolver.resolveLocale(request);
 
         assertEquals(Locale.US, locale);
+    }
+
+    @Test
+    @DisplayName("TEMPORARY (IDVA6-2788): falls back to the legacy extra_data.lang "
+            + "value when the top-level lang key is absent")
+    void testResolveLocaleFallsBackToLegacyExtraDataLang() {
+        setupLegacyExtraDataSessionData("cy");
+        Locale locale = localeResolver.resolveLocale(request);
+
+        Locale welshLocale = Locale.forLanguageTag("cy");
+        assertEquals(welshLocale, locale);
+    }
+
+    @Test
+    @DisplayName("TEMPORARY (IDVA6-2788): top-level lang key takes precedence "
+            + "over the legacy extra_data.lang value when both are present")
+    void testResolveLocalePrefersTopLevelLangOverLegacyExtraDataLang() {
+        initSessionData("cy");
+        Map<String, String> extraData = new HashMap<>();
+        extraData.put("lang", "en");
+        sessionData.put("extra_data", extraData);
+        when(sessionProvider.getSessionDataFromContext()).thenReturn(sessionData);
+
+        Locale locale = localeResolver.resolveLocale(request);
+
+        Locale welshLocale = Locale.forLanguageTag("cy");
+        assertEquals(welshLocale, locale);
     }
 }
