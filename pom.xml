@@ -2,246 +2,294 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
+    <modelVersion>4.0.0</modelVersion>
 
-  <artifactId>company-lookup.web.ch.gov.uk</artifactId>
-  <version>unversioned</version>
-  <name>company-lookup.web</name>
-  <description>Web service to handle company lookup</description>
+    <artifactId>company-lookup.web.ch.gov.uk</artifactId>
+    <version>unversioned</version>
+    <name>company-lookup.web</name>
+    <description>Web service to handle company lookup</description>
 
-  <parent>
-    <groupId>uk.gov.companieshouse</groupId>
-    <artifactId>companies-house-parent</artifactId>
-    <version>2.1.14</version>
-    <relativePath/>
-  </parent>
+    <parent>
+        <groupId>uk.gov.companieshouse</groupId>
+        <artifactId>companies-house-parent</artifactId>
+        <version>2.1.15</version>
+        <relativePath/>
+    </parent>
 
-  <properties>
-    <java.version>21</java.version>
-    <spring-boot-dependencies.version>3.5.15</spring-boot-dependencies.version>
-    <ch-boms.version>0.1.15</ch-boms.version>
+    <properties>
 
-    <!-- Maven plugins -->
-    <maven-compiler-plugin.version>3.15.0</maven-compiler-plugin.version>
-    <maven-surefire-plugin.version>3.5.5</maven-surefire-plugin.version>
-    <jib-maven-plugin.version>3.4.6</jib-maven-plugin.version>
+        <java.version>21</java.version>
 
-    <!-- Dependencies not managed by ch-boms -->
-    <thymeleaf-layout-dialect.version>3.4.0</thymeleaf-layout-dialect.version>
-    <api-sdk-java.version>6.6.15</api-sdk-java.version>
-    <common-web-java.version>5.0.4</common-web-java.version>
-    <jsoup.version>1.21.2</jsoup.version>
+        <!-- Source: https://github.com/companieshouse/ch-boms/releases -->
+        <ch-boms.version>0.1.15</ch-boms.version>
 
-  </properties>
+        <!-- Source: https://github.com/companieshouse/api-sdk-java/releases -->
+        <api-sdk-java.version>7.2.2</api-sdk-java.version>
+        <!-- Source: https://github.com/companieshouse/common-web-java/releases -->
+        <common-web-java.version>5.0.4</common-web-java.version>
+        <!-- Source: https://github.com/companieshouse/structured-logging/releases -->
+        <structured-logging.version>4.0.1</structured-logging.version>
 
-  <dependencyManagement>
+        <!-- Managed Dependency Versions        -->
+        <!-- Source: https://mvnrepository.com/artifact/org.springframework.boot/spring-boot -->
+        <spring-boot.version>4.1.0</spring-boot.version>
+        <!-- Source: https://mvnrepository.com/artifact/org.jsoup/jsoup -->
+        <jsoup.version>1.23.1</jsoup.version>
+        <!-- Source: https://mvnrepository.com/artifact/io.opentelemetry.instrumentation/opentelemetry-instrumentation-bom -->
+        <opentelemetry.version>2.30.0</opentelemetry.version>
+        <!-- Source: https://mvnrepository.com/artifact/org.apache.tomcat.embed/tomcat-embed-core -->
+        <tomcat.version>11.0.24</tomcat.version>
+
+        <!-- Plugin Versions       -->
+        <!-- Source: https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-surefire-plugin -->
+        <maven-surefire-plugin.version>3.5.6</maven-surefire-plugin.version>
+        <!-- Source: https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-compiler-plugin -->
+        <maven-compiler-plugin.version>3.15.0</maven-compiler-plugin.version>
+        <!-- Source: https://mvnrepository.com/artifact/org.jacoco/jacoco-maven-plugin -->
+        <jacoco-maven-plugin.version>0.8.15</jacoco-maven-plugin.version>
+        <!-- Source: https://mvnrepository.com/artifact/com.google.cloud.tools/jib-maven-plugin -->
+        <jib-maven-plugin.version>3.5.2</jib-maven-plugin.version>
+        <!-- Source: https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-failsafe-plugin -->
+        <maven-failsafe-plugin.version>3.5.6</maven-failsafe-plugin.version>
+
+    </properties>
+
+    <dependencyManagement>
+        <dependencies>
+
+            <!-- CH BOMs — must appear before Spring Boot BOM for CVE overrides to take precedence -->
+            <dependency>
+                <groupId>uk.gov.companieshouse</groupId>
+                <artifactId>ch-dependency-bom</artifactId>
+                <version>${ch-boms.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>uk.gov.companieshouse</groupId>
+                <artifactId>ch-test-bom</artifactId>
+                <version>${ch-boms.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-dependencies</artifactId>
+                <version>${spring-boot.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
+        </dependencies>
+    </dependencyManagement>
+
     <dependencies>
-      <!-- CH BOMs — must appear before Spring Boot BOM for CVE overrides to take precedence -->
-      <dependency>
-        <groupId>uk.gov.companieshouse</groupId>
-        <artifactId>ch-dependency-bom</artifactId>
-        <version>${ch-boms.version}</version>
-        <type>pom</type>
-        <scope>import</scope>
-      </dependency>
-      <dependency>
-        <groupId>uk.gov.companieshouse</groupId>
-        <artifactId>ch-test-bom</artifactId>
-        <version>${ch-boms.version}</version>
-        <type>pom</type>
-        <scope>import</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-dependencies</artifactId>
-        <version>${spring-boot-dependencies.version}</version>
-        <type>pom</type>
-        <scope>import</scope>
-      </dependency>
+        <!-- Spring Boot starters -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-validation</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-thymeleaf</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-opentelemetry</artifactId>
+        </dependency>
+
+        <!-- Source: https://mvnrepository.com/artifact/io.opentelemetry.instrumentation/opentelemetry-logback-appender-1.0 -->
+        <dependency>
+            <groupId>io.opentelemetry.instrumentation</groupId>
+            <artifactId>opentelemetry-logback-appender-1.0</artifactId>
+            <version>${opentelemetry.version}-alpha</version>
+        </dependency>
+        <!-- Beyond 1.5.34 OTel logging stops working. The structured-logging component needs to be refactored -->
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>1.5.34</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-core</artifactId>
+            <version>1.5.34</version>
+            <scope>compile</scope>
+        </dependency>
+
+        <!-- Thymeleaf -->
+        <dependency>
+            <groupId>nz.net.ultraq.thymeleaf</groupId>
+            <artifactId>thymeleaf-layout-dialect</artifactId>
+        </dependency>
+
+        <!-- Spring Security -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
+        </dependency>
+
+        <!-- Companies House libraries (versions from ch-dependency-bom) -->
+        <dependency>
+            <groupId>uk.gov.companieshouse</groupId>
+            <artifactId>sdk-manager-java</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>commons-collections</groupId>
+                    <artifactId>commons-collections</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>uk.gov.companieshouse</groupId>
+            <artifactId>structured-logging</artifactId>
+            <version>${structured-logging.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>uk.gov.companieshouse</groupId>
+            <artifactId>web-security-java</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>uk.gov.companieshouse</groupId>
+            <artifactId>java-session-handler</artifactId>
+        </dependency>
+
+        <!-- CH libraries not in BOM -->
+        <dependency>
+            <groupId>uk.gov.companieshouse</groupId>
+            <artifactId>api-sdk-java</artifactId>
+            <version>${api-sdk-java.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>uk.gov.companieshouse</groupId>
+            <artifactId>common-web-java</artifactId>
+            <version>${common-web-java.version}</version>
+        </dependency>
+
+        <!-- Third-party (versions from ch-core-bom) -->
+        <dependency>
+            <groupId>commons-beanutils</groupId>
+            <artifactId>commons-beanutils</artifactId>
+        </dependency>
+
+        <!-- Test -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-webmvc-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.jsoup</groupId>
+            <artifactId>jsoup</artifactId>
+            <version>${jsoup.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.assertj</groupId>
+            <artifactId>assertj-core</artifactId>
+            <scope>test</scope>
+        </dependency>
 
     </dependencies>
-  </dependencyManagement>
 
-  <dependencies>
-    <!-- Spring Boot starters -->
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-validation</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-actuator</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-web</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-devtools</artifactId>
-      <optional>true</optional>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-thymeleaf</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>io.opentelemetry.instrumentation</groupId>
-      <artifactId>opentelemetry-spring-boot-starter</artifactId>
-    </dependency>
+    <build>
+        <plugins>
 
-    <!-- Thymeleaf -->
-    <dependency>
-      <groupId>nz.net.ultraq.thymeleaf</groupId>
-      <artifactId>thymeleaf-layout-dialect</artifactId>
-      <version>${thymeleaf-layout-dialect.version}</version>
-    </dependency>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <version>${spring-boot.version}</version>
+                <configuration>
+                    <mainClass>uk.gov.companieshouse.lookup.Application</mainClass>
+                    <layout>ZIP</layout>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>repackage</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
 
-    <!-- Spring Security -->
-    <dependency>
-      <groupId>org.springframework.security</groupId>
-      <artifactId>spring-security-core</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.security</groupId>
-      <artifactId>spring-security-crypto</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.security</groupId>
-      <artifactId>spring-security-web</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.security</groupId>
-      <artifactId>spring-security-config</artifactId>
-    </dependency>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+            </plugin>
 
-    <!-- Companies House libraries (versions from ch-dependency-bom) -->
-    <dependency>
-      <groupId>uk.gov.companieshouse</groupId>
-      <artifactId>sdk-manager-java</artifactId>
-      <exclusions>
-        <exclusion>
-          <groupId>commons-collections</groupId>
-          <artifactId>commons-collections</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>uk.gov.companieshouse</groupId>
-      <artifactId>structured-logging</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>uk.gov.companieshouse</groupId>
-      <artifactId>web-security-java</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>uk.gov.companieshouse</groupId>
-      <artifactId>java-session-handler</artifactId>
-    </dependency>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>${maven-surefire-plugin.version}</version>
+                <configuration>
+                    <environmentVariables>
+                        <COOKIE_NAME>test</COOKIE_NAME>
+                        <COOKIE_DOMAIN>test</COOKIE_DOMAIN>
+                    </environmentVariables>
+                </configuration>
+            </plugin>
 
-    <!-- CH libraries not in BOM -->
-    <dependency>
-      <groupId>uk.gov.companieshouse</groupId>
-      <artifactId>api-sdk-java</artifactId>
-      <version>${api-sdk-java.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>uk.gov.companieshouse</groupId>
-      <artifactId>common-web-java</artifactId>
-      <version>${common-web-java.version}</version>
-    </dependency>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>${maven-compiler-plugin.version}</version>
+                <configuration>
+                    <compilerArgs>
+                        <arg>-parameters</arg>
+                    </compilerArgs>
+                    <source>${java.version}</source>
+                    <target>${java.version}</target>
+                    <fork>true</fork>
+                    <meminitial>128m</meminitial>
+                    <encoding>${project.build.sourceEncoding}</encoding>
+                    <maxmem>512m</maxmem>
+                </configuration>
+            </plugin>
 
-    <!-- Third-party (versions from ch-core-bom) -->
-    <dependency>
-      <groupId>commons-beanutils</groupId>
-      <artifactId>commons-beanutils</artifactId>
-    </dependency>
+            <plugin>
+                <groupId>com.google.cloud.tools</groupId>
+                <artifactId>jib-maven-plugin</artifactId>
+                <version>${jib-maven-plugin.version}</version>
+                <configuration>
+                    <from>
+                        <image>416670754337.dkr.ecr.eu-west-2.amazonaws.com/ci-corretto-build-21:latest</image>
+                    </from>
+                    <to>
+                        <image>416670754337.dkr.ecr.eu-west-2.amazonaws.com/company-lookup.web.ch.gov.uk:latest</image>
+                    </to>
+                    <container>
+                        <expandClasspathDependencies>true</expandClasspathDependencies>
+                    </container>
+                </configuration>
+            </plugin>
 
-    <!-- Test -->
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-test</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.jsoup</groupId>
-      <artifactId>jsoup</artifactId>
-      <version>${jsoup.version}</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.assertj</groupId>
-      <artifactId>assertj-core</artifactId>
-      <scope>test</scope>
-    </dependency>
-  </dependencies>
-
-  <build>
-    <plugins>
-      <plugin>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-maven-plugin</artifactId>
-        <version>${spring-boot-dependencies.version}</version>
-        <configuration>
-          <mainClass>uk.gov.companieshouse.lookup.Application</mainClass>
-          <layout>ZIP</layout>
-        </configuration>
-        <executions>
-          <execution>
-            <goals>
-              <goal>repackage</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
-        <groupId>org.jacoco</groupId>
-        <artifactId>jacoco-maven-plugin</artifactId>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-surefire-plugin</artifactId>
-        <version>${maven-surefire-plugin.version}</version>
-        <configuration>
-          <environmentVariables>
-            <COOKIE_NAME>test</COOKIE_NAME>
-            <COOKIE_DOMAIN>test</COOKIE_DOMAIN>
-          </environmentVariables>
-        </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <version>${maven-compiler-plugin.version}</version>
-        <configuration>
-          <compilerArgs>
-            <arg>-parameters</arg>
-          </compilerArgs>
-          <source>${java.version}</source>
-          <target>${java.version}</target>
-          <fork>true</fork>
-          <meminitial>128m</meminitial>
-          <encoding>${project.build.sourceEncoding}</encoding>
-          <maxmem>512m</maxmem>
-        </configuration>
-      </plugin>
-      <plugin>
-        <groupId>com.google.cloud.tools</groupId>
-        <artifactId>jib-maven-plugin</artifactId>
-        <version>${jib-maven-plugin.version}</version>
-        <configuration>
-          <from>
-            <image>416670754337.dkr.ecr.eu-west-2.amazonaws.com/ci-corretto-build-21:latest</image>
-          </from>
-          <to>
-            <image>416670754337.dkr.ecr.eu-west-2.amazonaws.com/company-lookup.web.ch.gov.uk:latest</image>
-          </to>
-          <container>
-            <expandClasspathDependencies>true</expandClasspathDependencies>
-          </container>
-        </configuration>
-      </plugin>
-    </plugins>
-  </build>
+        </plugins>
+    </build>
 
 </project>

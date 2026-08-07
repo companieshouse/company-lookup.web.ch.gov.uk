@@ -21,7 +21,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.TestPropertySource;
@@ -82,12 +82,12 @@ class CompanyLookupControllerTest {
     private LinkUtils linkUtils;
 
     @BeforeAll
-    public static void setUp() {
+    static void setUp() {
         System.setProperty("COOKIE_NAME", "__SID");
     }
 
     @BeforeEach
-    public void setUpBeforeEach() {
+    void setUpBeforeEach() {
         this.mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
         when(linkUtils.resolveRelativeLink(any())).thenReturn(Optional.empty());
     }
@@ -223,8 +223,8 @@ class CompanyLookupControllerTest {
 
     @Test
     @DisplayName("Test Company Lookup Controller with Language Parameter")
-    void testCompanyLookupController() throws Exception{
-        when(chSessionLocaleResolver.resolveLocale(any())).thenReturn(new Locale("cy"));
+    void testCompanyLookupController() throws Exception {
+        when(chSessionLocaleResolver.resolveLocale(any())).thenReturn(Locale.forLanguageTag("cy"));
 
         MvcResult result = mockMvc.perform(get(COMPANY_LOOKUP_URL, FORWARD_URL_PARAM)
                         .param("lang", "cy"))
@@ -252,7 +252,7 @@ class CompanyLookupControllerTest {
     @Test
     @DisplayName("Test Company Lookup Welsh Errors for null company number")
     void testNullCompanyNumberErrorMessages() throws Exception{
-        when(chSessionLocaleResolver.resolveLocale(any())).thenReturn(new Locale("cy"));
+        when(chSessionLocaleResolver.resolveLocale(any())).thenReturn(Locale.forLanguageTag("cy"));
 
         MvcResult result = mockMvc.perform(post(COMPANY_LOOKUP_URL, FORWARD_URL_PARAM)
                         .param("lang", "cy"))
@@ -269,8 +269,8 @@ class CompanyLookupControllerTest {
 
     @Test
     @DisplayName("Test Company Lookup Welsh Errors for no empty company number")
-    void testEmptyCompanyNumberErrorMessage() throws Exception{
-        when(chSessionLocaleResolver.resolveLocale(any())).thenReturn(new Locale("cy"));
+    void testEmptyCompanyNumberErrorMessage() throws Exception {
+        when(chSessionLocaleResolver.resolveLocale(any())).thenReturn(Locale.forLanguageTag("cy"));
 
         MvcResult result = mockMvc.perform(post(COMPANY_LOOKUP_URL, FORWARD_URL_PARAM)
                         .param("lang", "cy").param("companyNumber", ""))
@@ -288,7 +288,7 @@ class CompanyLookupControllerTest {
     @Test
     @DisplayName("Test Company Lookup Welsh Errors for wrong length company number")
     void testCompanyNumberLengthErrorMessage() throws Exception {
-        when(chSessionLocaleResolver.resolveLocale(any())).thenReturn(new Locale("cy"));
+        when(chSessionLocaleResolver.resolveLocale(any())).thenReturn(Locale.forLanguageTag("cy"));
 
         MvcResult result = mockMvc.perform(post(COMPANY_LOOKUP_URL, FORWARD_URL_PARAM)
                         .param("lang", "cy").param("companyNumber", "12"))
@@ -306,8 +306,8 @@ class CompanyLookupControllerTest {
 
     @Test
     @DisplayName("Test Company Lookup Welsh Errors for invalid company number")
-    void testInvalidCompanyNumberErrorMessage() throws Exception{
-        when(chSessionLocaleResolver.resolveLocale(any())).thenReturn(new Locale("cy"));
+    void testInvalidCompanyNumberErrorMessage() throws Exception {
+        when(chSessionLocaleResolver.resolveLocale(any())).thenReturn(Locale.forLanguageTag("cy"));
 
         MvcResult result = mockMvc.perform(post(COMPANY_LOOKUP_URL, FORWARD_URL_PARAM)
                         .param("lang", "cy").param("companyNumber", "san-goku"))
@@ -325,8 +325,8 @@ class CompanyLookupControllerTest {
 
     @Test
     @DisplayName("Test Company Lookup for Welsh header and footer")
-    void testWelshHeaderFooter() throws Exception{
-        when(chSessionLocaleResolver.resolveLocale(any())).thenReturn(new Locale("cy"));
+    void testWelshHeaderFooter() throws Exception {
+        when(chSessionLocaleResolver.resolveLocale(any())).thenReturn(Locale.forLanguageTag("cy"));
 
         MvcResult result = mockMvc.perform(post(COMPANY_LOOKUP_URL, FORWARD_URL_PARAM)
                         .param("lang", "cy"))
@@ -346,8 +346,8 @@ class CompanyLookupControllerTest {
 
     @Test
     @DisplayName("Test Company Lookup for English header and footer")
-    void testEnglishHeaderFooter() throws Exception{
-        when(chSessionLocaleResolver.resolveLocale(any())).thenReturn(new Locale("en"));
+    void testEnglishHeaderFooter() throws Exception {
+        when(chSessionLocaleResolver.resolveLocale(any())).thenReturn(Locale.ENGLISH);
 
         MvcResult result = mockMvc.perform(post(COMPANY_LOOKUP_URL, FORWARD_URL_PARAM))
                 .andDo(print())
