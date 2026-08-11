@@ -28,7 +28,7 @@
         <!-- Source: https://github.com/companieshouse/common-web-java/releases -->
         <common-web-java.version>5.0.4</common-web-java.version>
         <!-- Source: https://github.com/companieshouse/structured-logging/releases -->
-        <structured-logging.version>4.0.1</structured-logging.version>
+        <structured-logging.version>4.0.2</structured-logging.version>
 
         <!-- Managed Dependency Versions        -->
         <!-- Source: https://mvnrepository.com/artifact/org.springframework.boot/spring-boot -->
