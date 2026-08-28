@@ -41,6 +41,8 @@
         <opentelemetry.version>1.65.0</opentelemetry.version>
         <!-- Override Spring Boot 4.1.1 default (1.42.0) to fix CVE-2026-54285 -->
         <opentelemetry-semconv.version>1.43.0</opentelemetry-semconv.version>
+        <!-- Source: https://central.sonatype.com/artifact/org.apache.tomcat.embed/tomcat-embed-core - Override Spring Boot 4.1.1 default (10.1.57) to fix multiple Tomcat CVEs -->
+        <tomcat.version>11.0.25</tomcat.version>
 
         <!-- Plugin Versions       -->
         <!-- Source: https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-surefire-plugin -->
@@ -142,6 +144,11 @@
             </dependency>
             <dependency>
                 <groupId>io.opentelemetry</groupId>
+                <artifactId>opentelemetry-exporter-sender-okhttp</artifactId>
+                <version>${opentelemetry.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.opentelemetry</groupId>
                 <artifactId>opentelemetry-api-incubator</artifactId>
                 <version>${opentelemetry.version}-alpha</version>
             </dependency>
@@ -163,7 +170,19 @@
             <dependency>
                 <groupId>io.opentelemetry.proto</groupId>
                 <artifactId>opentelemetry-proto</artifactId>
-                <version>1.10.0-alpha</version>
+                <version>1.11.0-alpha</version>
+            </dependency>
+
+            <!-- Tomcat override to fix multiple CVEs -->
+            <dependency>
+                <groupId>org.apache.tomcat.embed</groupId>
+                <artifactId>tomcat-embed-core</artifactId>
+                <version>${tomcat.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.tomcat.embed</groupId>
+                <artifactId>tomcat-embed-websocket</artifactId>
+                <version>${tomcat.version}</version>
             </dependency>
 
         </dependencies>
