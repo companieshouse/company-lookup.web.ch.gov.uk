@@ -86,12 +86,6 @@
                 <scope>import</scope>
             </dependency>
 
-            <dependency>
-                <groupId>io.opentelemetry.proto</groupId>
-                <artifactId>opentelemetry-proto</artifactId>
-                <version>1.11.0-alpha</version>
-            </dependency>
-
             <!-- Tomcat override to fix multiple CVEs -->
             <dependency>
                 <groupId>org.apache.tomcat.embed</groupId>
