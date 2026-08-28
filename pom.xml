@@ -39,6 +39,8 @@
         <opentelemetry-logback-appender.version>2.30.0</opentelemetry-logback-appender.version>
         <!-- Source: https://mvnrepository.com/artifact/io.opentelemetry/opentelemetry-api - Override Spring Boot 4.1.1 default (1.62.0) to fix CVE-2026-54285 -->
         <opentelemetry.version>1.65.0</opentelemetry.version>
+        <!-- Override Spring Boot 4.1.1 default (1.42.0) to fix CVE-2026-54285 -->
+        <opentelemetry-semconv.version>1.43.0</opentelemetry-semconv.version>
 
         <!-- Plugin Versions       -->
         <!-- Source: https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-surefire-plugin -->
@@ -156,7 +158,7 @@
             <dependency>
                 <groupId>io.opentelemetry.semconv</groupId>
                 <artifactId>opentelemetry-semconv</artifactId>
-                <version>${opentelemetry.version}</version>
+                <version>${opentelemetry-semconv.version}</version>
             </dependency>
             <dependency>
                 <groupId>io.opentelemetry.proto</groupId>
