@@ -1,7 +1,7 @@
 package uk.gov.companieshouse.lookup.config;
 
 import org.springframework.context.annotation.Configuration;
-import jakarta.annotation.Nonnull;
+import org.jspecify.annotations.NonNull;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import uk.gov.companieshouse.common.web.interceptor.TemplateNameInterceptor;
@@ -16,7 +16,7 @@ public class PiwikInterceptorConfig implements WebMvcConfigurer {
      * @param registry The spring interceptor registry
      */
     @Override
-    public void addInterceptors(@Nonnull InterceptorRegistry registry) {
+    public void addInterceptors(@NonNull InterceptorRegistry registry) {
         // Add interceptor to get template names for matomo events
         registry.addInterceptor(new TemplateNameInterceptor());
     }
