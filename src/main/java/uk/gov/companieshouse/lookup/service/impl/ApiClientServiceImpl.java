@@ -1,5 +1,6 @@
 package uk.gov.companieshouse.lookup.service.impl;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.gov.companieshouse.api.ApiClient;
 import uk.gov.companieshouse.environment.EnvironmentReader;
@@ -14,6 +15,7 @@ public class ApiClientServiceImpl implements ApiClientService {
 
     private final EnvironmentReader environmentReader;
 
+    @Autowired
     public ApiClientServiceImpl() {
         this(new EnvironmentReaderImpl());
     }
