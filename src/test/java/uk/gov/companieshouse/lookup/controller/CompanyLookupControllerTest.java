@@ -239,7 +239,7 @@ class CompanyLookupControllerTest {
         assertThat(doc.selectFirst("title").text()).contains("Beth yw rhif y cwmni?");
         assertThat(doc.selectFirst("label").text()).contains("Beth yw rhif y cwmni?");
         assertThat(doc.getElementById("company-lookup-hint").text()).contains(
-                "Cofnodwch y rif cwmni sy'n 8 nod");
+                "Rhowch rif cwmni sy'n 8 nod.");
         assertThat(doc.getElementsByClass("govuk-inset-text").first().text()).contains(
                 "Os oes gennych rif cwmni sy'n 7 nod neu lai, nodwch seroau ar y dechrau fel ei fod yn 8 nod i gyd. Er enghraifft, os yw'n 12345, rhowch 00012345");
         assertThat(doc.getElementById("company-number-help-text-link").text()).contains(
@@ -264,7 +264,7 @@ class CompanyLookupControllerTest {
 
         Document doc = Jsoup.parse(responseContent);
 
-        assertTrue(doc.toString().contains("Cofnodwch rif y cwmni"));
+        assertTrue(doc.toString().contains("Rhowch rif y cwmni"));
     }
 
     @Test
@@ -282,7 +282,7 @@ class CompanyLookupControllerTest {
 
         Document doc = Jsoup.parse(responseContent);
 
-        assertTrue(doc.toString().contains("Cofnodwch rif y cwmni"));
+        assertTrue(doc.toString().contains("Rhowch rif y cwmni"));
     }
 
     @Test
