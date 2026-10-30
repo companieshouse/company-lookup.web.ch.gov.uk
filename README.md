@@ -36,6 +36,18 @@ FORWARDING_URL         | The path the user will be forwarded to after the search
   | POST   | /company-lookup/search?forward=%2Fefs-submission%2F690b270a1356c02de11335e5%2Fcompany%2F%7BcompanyNumber%7D%2Fdetails&userEmail=demo%40ch.gov.uk                                 | 302 Found                                                     |
   | GET    | /efs-submission/690b270a1356c02de11335e5/company/00006400/details                                                                                                                | 200 OK                                                        |
 
+## SonarQube authentication
+
+Supply a SonarQube analysis token through the CI-provided Maven property
+`CODE_ANALYSIS_TOKEN` when running the Maven Sonar analysis goal. The POM maps
+this property to `sonar.token`, following the `cis-cases-api` configuration.
+An environment variable alone does not populate this Maven property; CI must
+pass it to Maven. Keep the value in CI secrets and do not commit the token.
+The project overrides the legacy `sonar.login` and `sonar.password` properties
+inherited from `companies-house-parent` with empty values. Remove any CI command-line
+arguments that set these properties, because command-line values override the POM.
+An account password cannot be used in place of an analysis token.
+
 ## Terraform ECS
 
 ### What does this code do?

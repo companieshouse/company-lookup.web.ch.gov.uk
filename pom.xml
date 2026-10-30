@@ -20,6 +20,12 @@
 
         <java.version>21</java.version>
 
+        <!-- Override legacy authentication inherited from companies-house-parent.
+             Supply the analysis token through the CI CODE_ANALYSIS_TOKEN Maven property. -->
+        <sonar.token>${CODE_ANALYSIS_TOKEN}</sonar.token>
+        <sonar.login></sonar.login>
+        <sonar.password></sonar.password>
+
         <!-- Source: https://github.com/companieshouse/ch-boms/releases -->
         <ch-boms.version>0.1.15</ch-boms.version>
 
