@@ -38,15 +38,13 @@ FORWARDING_URL         | The path the user will be forwarded to after the search
 
 ## SonarQube authentication
 
-Supply a SonarQube analysis token through the CI-provided Maven property
-`CODE_ANALYSIS_TOKEN` when running the Maven Sonar analysis goal. The POM maps
-this property to `sonar.token`, following the `cis-cases-api` configuration.
-An environment variable alone does not populate this Maven property; CI must
-pass it to Maven. Keep the value in CI secrets and do not commit the token.
-The project overrides the legacy `sonar.login` and `sonar.password` properties
-inherited from `companies-house-parent` with empty values. Remove any CI command-line
-arguments that set these properties, because command-line values override the POM.
-An account password cannot be used in place of an analysis token.
+The shared CI Sonar runner passes its `CODE_ANALYSIS_TOKEN` secret directly as
+`sonar.token`. For a local analysis, supply an analysis token through `SONAR_TOKEN`.
+Keep tokens in secrets and do not commit them.
+
+The project uses `companies-house-parent` 3.0.0, which removes the retired
+`sonar.login` and `sonar.password` properties. Do not reintroduce these properties
+in the POM or CI arguments, including as empty values.
 
 ## Terraform ECS
 
