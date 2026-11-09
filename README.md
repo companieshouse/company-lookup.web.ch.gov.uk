@@ -36,6 +36,16 @@ FORWARDING_URL         | The path the user will be forwarded to after the search
   | POST   | /company-lookup/search?forward=%2Fefs-submission%2F690b270a1356c02de11335e5%2Fcompany%2F%7BcompanyNumber%7D%2Fdetails&userEmail=demo%40ch.gov.uk                                 | 302 Found                                                     |
   | GET    | /efs-submission/690b270a1356c02de11335e5/company/00006400/details                                                                                                                | 200 OK                                                        |
 
+## SonarQube authentication
+
+The shared CI Sonar runner passes its `CODE_ANALYSIS_TOKEN` secret directly as
+`sonar.token`. For a local analysis, supply an analysis token through `SONAR_TOKEN`.
+Keep tokens in secrets and do not commit them.
+
+The project uses `companies-house-parent` 3.0.0, which removes the retired
+`sonar.login` and `sonar.password` properties. Do not reintroduce these properties
+in the POM or CI arguments, including as empty values.
+
 ## Terraform ECS
 
 ### What does this code do?
