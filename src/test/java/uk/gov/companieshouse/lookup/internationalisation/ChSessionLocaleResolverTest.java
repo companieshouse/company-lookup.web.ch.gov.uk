@@ -4,10 +4,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.test.util.ReflectionTestUtils;
 import uk.gov.companieshouse.session.Session;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -19,6 +17,7 @@ import java.util.Map;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.verifyNoInteractions;
 
 @ExtendWith(MockitoExtension.class)
 class ChSessionLocaleResolverTest {
@@ -40,14 +39,13 @@ class ChSessionLocaleResolverTest {
 
     private Map<String, Object> sessionData;
 
-    @InjectMocks
     private ChSessionLocaleResolver localeResolver;
 
 
     @BeforeEach
     public void setUp() {
-        localeResolver.setSessionProvider(sessionProvider);
-        ReflectionTestUtils.setField(localeResolver, "defaultLocale", Locale.ENGLISH);
+        localeResolver = new ChSessionLocaleResolver(sessionProvider, true);
+        localeResolver.setDefaultLocale(Locale.ENGLISH);
     }
 
     // Language tag is now stored directly under the top-level shared session
@@ -154,5 +152,27 @@ class ChSessionLocaleResolverTest {
 
         Locale welshLocale = Locale.forLanguageTag("cy");
         assertEquals(welshLocale, locale);
+    }
+
+    @Test
+    @DisplayName("Disabled Welsh resolves to English without reading the session")
+    void testDisabledWelshResolvesToEnglish() {
+        localeResolver = new ChSessionLocaleResolver(sessionProvider, false);
+        localeResolver.setDefaultLocale(Locale.ENGLISH);
+
+        assertEquals(Locale.ENGLISH, localeResolver.resolveLocale(request));
+
+        verify(request).setAttribute("onWelshJourney", false);
+        verifyNoInteractions(sessionProvider);
+    }
+
+    @Test
+    @DisplayName("disabled Welsh does not change the shared language preference in the session")
+    void testDisabledWelshDoesNotChangeSession() {
+        localeResolver = new ChSessionLocaleResolver(sessionProvider, false);
+
+        localeResolver.setLocale(request, response, Locale.forLanguageTag("cy"));
+
+        verifyNoInteractions(sessionProvider);
     }
 }

@@ -2,6 +2,7 @@ package uk.gov.companieshouse.lookup.internationalisation;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.LocaleResolver;
 import uk.gov.companieshouse.session.Session;
@@ -28,27 +29,28 @@ public class ChSessionLocaleResolver implements LocaleResolver {
     private static final String EXTRA_DATA_SESSION_KEY = "extra_data";
 
     private SessionProvider sessionProvider;
+    private final boolean welshLanguageEnabled;
     private Locale defaultLocale = Locale.getDefault();
 
     @Autowired
-    public ChSessionLocaleResolver(SessionProvider sessionProvider) {
+    public ChSessionLocaleResolver(SessionProvider sessionProvider, @Value("${welshLanguage.enabled:false}") boolean welshLanguageEnabled) {
         this.sessionProvider = sessionProvider;
+        this.welshLanguageEnabled = welshLanguageEnabled;
     }
 
     @Override
     public Locale resolveLocale(HttpServletRequest httpServletRequest) {
-        Locale locale = getLocaleFromSession();
+        Locale locale = welshLanguageEnabled ? getLocaleFromSession() : null;
         httpServletRequest.setAttribute("onWelshJourney", locale != null);
-        if (locale == null) {
-            locale = defaultLocale;
-        }
 
-        return locale;
+        return locale != null ? locale :defaultLocale;
     }
 
     @Override
     public void setLocale(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, Locale locale) {
-        setLocaleInSession(locale);
+        if (welshLanguageEnabled) {
+            setLocaleInSession(locale);
+        }
     }
 
     private Locale getLocaleFromSession() {
