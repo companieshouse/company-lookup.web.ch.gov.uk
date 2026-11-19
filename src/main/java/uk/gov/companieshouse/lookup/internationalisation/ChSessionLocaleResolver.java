@@ -40,7 +40,7 @@ public class ChSessionLocaleResolver implements LocaleResolver {
 
     @Override
     public Locale resolveLocale(HttpServletRequest httpServletRequest) {
-        Locale locale = welshLanguageEnabled ? getLocaleFromSession() : null;
+        Locale locale = welshLanguageEnabled ? getLocaleFromSession() : defaultLocale;
         httpServletRequest.setAttribute("onWelshJourney", locale != null);
 
         return locale != null ? locale :defaultLocale;
