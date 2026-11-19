@@ -8,6 +8,14 @@ In order to run the Service locally you'll need the following installed on your 
 - [Maven](https://maven.apache.org/download.cgi)
 - [Git](https://git-scm.com/downloads)
 
+## Configuration
+| Environment variable | Default  | Description |
+| -------------------- |----------| ----------- |
+| `FEATURE_FLAG_WELSH_LANG_ENABLED_171126` | `false` with its value set explicitly per environment in the `ECS service configuration` | Temporary Welsh rollout flag, mapped to `welshLanguage.enabled`. When `true`, enables shared-session language selection and changes through `?lang=cy` or `?lang=en`, and makes the language selector available. When `false` or unset, displays English, hides the selector and ignores language changes without modifying the shared session preference. |
+
+Welsh language flag removal is tracked in [COM-169](https://companieshouse.atlassian.net/browse/COM-169). Disabling this flag also disables existing Welsh journeys.
+
+
 ## Connecting to the Service
 To start using this service you need to hit the following URL:
 _ENVIRONMENT_/company-lookup/search?forward=_FORWARDING_URL_
