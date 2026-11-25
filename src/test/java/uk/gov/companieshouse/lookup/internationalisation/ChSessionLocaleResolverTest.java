@@ -4,10 +4,12 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.NullSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.test.util.ReflectionTestUtils;
 import uk.gov.companieshouse.session.Session;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -19,6 +21,7 @@ import java.util.Map;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.verifyNoInteractions;
 
 @ExtendWith(MockitoExtension.class)
 class ChSessionLocaleResolverTest {
@@ -40,14 +43,12 @@ class ChSessionLocaleResolverTest {
 
     private Map<String, Object> sessionData;
 
-    @InjectMocks
     private ChSessionLocaleResolver localeResolver;
 
 
     @BeforeEach
     public void setUp() {
-        localeResolver.setSessionProvider(sessionProvider);
-        ReflectionTestUtils.setField(localeResolver, "defaultLocale", Locale.ENGLISH);
+        localeResolver = new ChSessionLocaleResolver(sessionProvider, Locale.ENGLISH);
     }
 
     // Language tag is now stored directly under the top-level shared session
@@ -123,7 +124,7 @@ class ChSessionLocaleResolverTest {
     @DisplayName("Set default locale and resolves to the default locale if no locale is in the session")
     void testSetDefaultLocaleAndResolveDefaultLocale() {
         setupSessionData(null);
-        localeResolver.setDefaultLocale(Locale.US);
+        localeResolver = new ChSessionLocaleResolver(sessionProvider, Locale.US);
         Locale locale = localeResolver.resolveLocale(request);
 
         assertEquals(Locale.US, locale);
@@ -154,5 +155,28 @@ class ChSessionLocaleResolverTest {
 
         Locale welshLocale = Locale.forLanguageTag("cy");
         assertEquals(welshLocale, locale);
+    }
+
+    @ParameterizedTest(name = "session lang [{0}] sets onWelshJourney to {1}")
+    @CsvSource(value = {"cy, true", "en, true", "NONE, false"}, nullValues = "NONE")
+    @DisplayName("onWelshJourney is set when the session already holds a language")
+    void testOnWelshJourneyWhenWelshEnabled(String sessionLang, boolean expectedOnWelshJourney) {
+        setupSessionData(sessionLang);
+
+        localeResolver.resolveLocale(request);
+
+        verify(request).setAttribute("onWelshJourney", expectedOnWelshJourney);
+    }
+
+    @ParameterizedTest(name = "[{0}]")
+    @NullSource
+    @ValueSource(strings = {"fr", "und"})
+    @DisplayName("Missing or unsupported languages are not written to the shared session")
+    void testUnsupportedLocaleIsNotStored(String languageTag) {
+        Locale locale = languageTag == null ? null : Locale.forLanguageTag(languageTag);
+
+        localeResolver.setLocale(request, response, locale);
+
+        verifyNoInteractions(sessionProvider);
     }
 }

@@ -2,6 +2,7 @@ package uk.gov.companieshouse.lookup.controller;
 
 import java.util.Locale;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -20,6 +21,9 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -239,7 +243,7 @@ class CompanyLookupControllerTest {
         assertThat(doc.selectFirst("title").text()).contains("Beth yw rhif y cwmni?");
         assertThat(doc.selectFirst("label").text()).contains("Beth yw rhif y cwmni?");
         assertThat(doc.getElementById("company-lookup-hint").text()).contains(
-                "Cofnodwch y rif cwmni sy'n 8 nod");
+                "Rhowch rif cwmni sy'n 8 nod.");
         assertThat(doc.getElementsByClass("govuk-inset-text").first().text()).contains(
                 "Os oes gennych rif cwmni sy'n 7 nod neu lai, nodwch seroau ar y dechrau fel ei fod yn 8 nod i gyd. Er enghraifft, os yw'n 12345, rhowch 00012345");
         assertThat(doc.getElementById("company-number-help-text-link").text()).contains(
@@ -264,63 +268,34 @@ class CompanyLookupControllerTest {
 
         Document doc = Jsoup.parse(responseContent);
 
-        assertTrue(doc.toString().contains("Cofnodwch rif y cwmni"));
+        assertTrue(doc.toString().contains("Rhowch rif y cwmni"));
     }
 
-    @Test
-    @DisplayName("Test Company Lookup Welsh Errors for no empty company number")
-    void testEmptyCompanyNumberErrorMessage() throws Exception {
+    @ParameterizedTest(name = "{index}: company number [{0}]")
+    @MethodSource("welshCompanyNumberValidationCases")
+    @DisplayName("Company lookup displays Welsh validation errors")
+    void testWelshCompanyNumberErrorMessage(String companyNumber, String expectedMessage) throws Exception {
         when(chSessionLocaleResolver.resolveLocale(any())).thenReturn(Locale.forLanguageTag("cy"));
 
         MvcResult result = mockMvc.perform(post(COMPANY_LOOKUP_URL, FORWARD_URL_PARAM)
-                        .param("lang", "cy").param("companyNumber", ""))
+                        .param("lang", "cy").param("companyNumber", companyNumber))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andReturn();
 
         String responseContent = result.getResponse().getContentAsString();
-
         Document doc = Jsoup.parse(responseContent);
 
-        assertTrue(doc.toString().contains("Cofnodwch rif y cwmni"));
+        assertTrue(doc.toString().contains(expectedMessage));
     }
 
-    @Test
-    @DisplayName("Test Company Lookup Welsh Errors for wrong length company number")
-    void testCompanyNumberLengthErrorMessage() throws Exception {
-        when(chSessionLocaleResolver.resolveLocale(any())).thenReturn(Locale.forLanguageTag("cy"));
-
-        MvcResult result = mockMvc.perform(post(COMPANY_LOOKUP_URL, FORWARD_URL_PARAM)
-                        .param("lang", "cy").param("companyNumber", "12"))
-                .andDo(print())
-                .andExpect(status().isOk())
-                .andReturn();
-
-        String responseContent = result.getResponse().getContentAsString();
-
-        Document doc = Jsoup.parse(responseContent);
-
-        assertTrue(doc.toString()
-                .contains("Rhaid i rif y cwmni fod ag 8 nod. Os yw'n 7 nod neu lai, nodwch seroau ar y dechrau fel ei fod yn 8 nod i gyd."));
-    }
-
-    @Test
-    @DisplayName("Test Company Lookup Welsh Errors for invalid company number")
-    void testInvalidCompanyNumberErrorMessage() throws Exception {
-        when(chSessionLocaleResolver.resolveLocale(any())).thenReturn(Locale.forLanguageTag("cy"));
-
-        MvcResult result = mockMvc.perform(post(COMPANY_LOOKUP_URL, FORWARD_URL_PARAM)
-                        .param("lang", "cy").param("companyNumber", "san-goku"))
-                .andDo(print())
-                .andExpect(status().isOk())
-                .andReturn();
-
-        String responseContent = result.getResponse().getContentAsString();
-
-        Document doc = Jsoup.parse(responseContent);
-
-        assertTrue(doc.toString()
-                .contains("Rhaid i rif cwmni gynnwys rhifau a llythrennau A i Z yn unig"));
+    private static Stream<Arguments> welshCompanyNumberValidationCases() {
+        return Stream.of(
+                Arguments.of("", "Rhowch rif y cwmni"),
+                Arguments.of("12",
+                        "Rhaid i rif y cwmni fod ag 8 nod. Os yw'n 7 nod neu lai, nodwch seroau ar y dechrau fel ei fod yn 8 nod i gyd."),
+                Arguments.of("san-goku", "Rhaid i rif cwmni gynnwys rhifau a llythrennau A i Z yn unig")
+        );
     }
 
     @Test
