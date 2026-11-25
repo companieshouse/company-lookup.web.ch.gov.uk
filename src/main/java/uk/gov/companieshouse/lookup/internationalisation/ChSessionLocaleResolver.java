@@ -11,9 +11,14 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 
 @Component
 public class ChSessionLocaleResolver implements LocaleResolver {
+    // Read by common-web-java's chsBaseLayout: the language selector is shown
+    // when welshLanguage.enabled is true or this request attribute is true.
+    static final String ON_WELSH_JOURNEY_ATTRIBUTE = "onWelshJourney";
+
     private static final String LANG_SESSION_KEY = "lang";
 
     // TEMPORARY (IDVA6-2788): some CHS services (e.g. the Node.js sibling
@@ -40,20 +45,31 @@ public class ChSessionLocaleResolver implements LocaleResolver {
 
     @Override
     public Locale resolveLocale(HttpServletRequest httpServletRequest) {
-        Locale locale = welshLanguageEnabled ? getLocaleFromSession() : defaultLocale;
-        httpServletRequest.setAttribute("onWelshJourney", locale != null);
+        Locale locale = getLocaleFromSession().orElse(defaultLocale);
+        httpServletRequest.setAttribute(ON_WELSH_JOURNEY_ATTRIBUTE, !defaultLocale.equals(locale));
 
-        return locale != null ? locale :defaultLocale;
+        return locale;
     }
 
     @Override
     public void setLocale(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, Locale locale) {
-        if (welshLanguageEnabled) {
+        if (isWelshLanguageEnabled()) {
             setLocaleInSession(locale);
         }
     }
 
-    private Locale getLocaleFromSession() {
+    // TEMPORARY (COM-169): the only place the Welsh rollout flag is checked.
+    // While it is off the shared session is neither read nor written, so a
+    // language preference set by another CHS service is left untouched.
+    private boolean isWelshLanguageEnabled() {
+        return welshLanguageEnabled;
+    }
+
+    private Optional<Locale> getLocaleFromSession() {
+        if (!isWelshLanguageEnabled()) {
+            return Optional.empty();
+        }
+
         Map<String, Object> sessionData = sessionProvider.getSessionDataFromContext();
         String languageTag = languageTagFrom(sessionData.get(LANG_SESSION_KEY));
 
@@ -63,11 +79,9 @@ public class ChSessionLocaleResolver implements LocaleResolver {
             languageTag = languageTagFromLegacyExtraData(sessionData);
         }
 
-        if (StringUtils.isEmpty(languageTag)) {
-            return null;
-        }
-
-        return Locale.forLanguageTag(languageTag);
+        return StringUtils.isEmpty(languageTag)
+                ? Optional.empty()
+                : Optional.of(Locale.forLanguageTag(languageTag));
     }
 
     private String languageTagFrom(Object languageTagObj) {

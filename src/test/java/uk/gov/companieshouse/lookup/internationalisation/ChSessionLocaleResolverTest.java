@@ -4,6 +4,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.companieshouse.session.Session;
@@ -174,5 +176,16 @@ class ChSessionLocaleResolverTest {
         localeResolver.setLocale(request, response, Locale.forLanguageTag("cy"));
 
         verifyNoInteractions(sessionProvider);
+    }
+
+    @ParameterizedTest(name = "session lang [{0}] sets onWelshJourney to {1}")
+    @CsvSource(value = {"cy, true", "en, false", "NONE, false"}, nullValues = "NONE")
+    @DisplayName("Enabled Welsh flags a Welsh journey only when the resolved locale is not the default")
+    void testOnWelshJourneyWhenWelshEnabled(String sessionLang, boolean expectedOnWelshJourney) {
+        setupSessionData(sessionLang);
+
+        localeResolver.resolveLocale(request);
+
+        verify(request).setAttribute("onWelshJourney", expectedOnWelshJourney);
     }
 }
