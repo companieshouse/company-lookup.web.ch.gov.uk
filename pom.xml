@@ -21,7 +21,7 @@
         <java.version>21</java.version>
 
         <!-- Source: https://github.com/companieshouse/ch-boms/releases -->
-        <ch-boms.version>0.1.15</ch-boms.version>
+        <ch-boms.version>0.1.42</ch-boms.version>
 
         <!-- Source: https://github.com/companieshouse/api-sdk-java/releases -->
         <api-sdk-java.version>7.2.3</api-sdk-java.version>
