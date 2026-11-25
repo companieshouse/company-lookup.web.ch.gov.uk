@@ -2,7 +2,6 @@ package uk.gov.companieshouse.lookup.config;
 
 import java.util.Locale;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -30,9 +29,8 @@ public class MessageConfig implements WebMvcConfigurer {
     // the shared CHS session. The return type is the concrete class so tests
     // can replace this bean with @MockitoBean ChSessionLocaleResolver.
     @Bean
-    public ChSessionLocaleResolver localeResolver(SessionProvider sessionProvider,
-            @Value("${welshLanguage.enabled:false}") boolean welshLanguageEnabled) {
-        return new ChSessionLocaleResolver(sessionProvider, Locale.ENGLISH, welshLanguageEnabled);
+    public ChSessionLocaleResolver localeResolver(SessionProvider sessionProvider) {
+        return new ChSessionLocaleResolver(sessionProvider, Locale.ENGLISH);
     }
 
     @Bean

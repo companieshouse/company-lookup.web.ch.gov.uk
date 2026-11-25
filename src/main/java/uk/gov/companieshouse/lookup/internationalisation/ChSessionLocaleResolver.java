@@ -23,6 +23,10 @@ import java.util.Set;
 public class ChSessionLocaleResolver implements LocaleResolver {
     // Read by common-web-java's chsBaseLayout: the language selector is shown
     // when welshLanguage.enabled is true or this request attribute is true.
+    // It is true when the session already holds a language, i.e. the user
+    // arrived from a journey that offers a choice of language. That keeps the
+    // selector off journeys that are English only while the rollout flag
+    // (welshLanguage.enabled, COM-169) is off.
     static final String ON_WELSH_JOURNEY_ATTRIBUTE = "onWelshJourney";
 
     private static final String LANG_SESSION_KEY = "lang";
@@ -45,28 +49,25 @@ public class ChSessionLocaleResolver implements LocaleResolver {
 
     private final SessionProvider sessionProvider;
     private final Locale defaultLocale;
-    private final boolean welshLanguageEnabled;
 
-    public ChSessionLocaleResolver(SessionProvider sessionProvider, Locale defaultLocale,
-            boolean welshLanguageEnabled) {
+    public ChSessionLocaleResolver(SessionProvider sessionProvider, Locale defaultLocale) {
         this.sessionProvider = Objects.requireNonNull(sessionProvider, "sessionProvider");
         this.defaultLocale = Objects.requireNonNull(defaultLocale, "defaultLocale");
-        this.welshLanguageEnabled = welshLanguageEnabled;
     }
 
     @Override
     public Locale resolveLocale(HttpServletRequest httpServletRequest) {
-        Locale locale = getLocaleFromSession().orElse(defaultLocale);
-        httpServletRequest.setAttribute(ON_WELSH_JOURNEY_ATTRIBUTE, !defaultLocale.equals(locale));
+        Optional<Locale> sessionLocale = getLocaleFromSession();
+        httpServletRequest.setAttribute(ON_WELSH_JOURNEY_ATTRIBUTE, sessionLocale.isPresent());
 
-        return locale;
+        return sessionLocale.orElse(defaultLocale);
     }
 
     // A null locale (?lang= with no value) is ignored rather than clearing a
     // preference that other CHS services also rely on.
     @Override
     public void setLocale(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, Locale locale) {
-        if (isWelshLanguageEnabled() && isSupported(locale)) {
+        if (isSupported(locale)) {
             setLocaleInSession(locale);
         }
     }
@@ -75,18 +76,7 @@ public class ChSessionLocaleResolver implements LocaleResolver {
         return locale != null && SUPPORTED_LANGUAGES.contains(locale.getLanguage());
     }
 
-    // TEMPORARY (COM-169): the only place the Welsh rollout flag is checked.
-    // While it is off the shared session is neither read nor written, so a
-    // language preference set by another CHS service is left untouched.
-    private boolean isWelshLanguageEnabled() {
-        return welshLanguageEnabled;
-    }
-
     private Optional<Locale> getLocaleFromSession() {
-        if (!isWelshLanguageEnabled()) {
-            return Optional.empty();
-        }
-
         Map<String, Object> sessionData = sessionProvider.getSessionDataFromContext();
         String languageTag = languageTagFrom(sessionData.get(LANG_SESSION_KEY));
 

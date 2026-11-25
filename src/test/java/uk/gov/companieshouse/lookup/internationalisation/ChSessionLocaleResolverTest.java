@@ -48,7 +48,7 @@ class ChSessionLocaleResolverTest {
 
     @BeforeEach
     public void setUp() {
-        localeResolver = new ChSessionLocaleResolver(sessionProvider, Locale.ENGLISH, true);
+        localeResolver = new ChSessionLocaleResolver(sessionProvider, Locale.ENGLISH);
     }
 
     // Language tag is now stored directly under the top-level shared session
@@ -124,7 +124,7 @@ class ChSessionLocaleResolverTest {
     @DisplayName("Set default locale and resolves to the default locale if no locale is in the session")
     void testSetDefaultLocaleAndResolveDefaultLocale() {
         setupSessionData(null);
-        localeResolver = new ChSessionLocaleResolver(sessionProvider, Locale.US, true);
+        localeResolver = new ChSessionLocaleResolver(sessionProvider, Locale.US);
         Locale locale = localeResolver.resolveLocale(request);
 
         assertEquals(Locale.US, locale);
@@ -157,30 +157,9 @@ class ChSessionLocaleResolverTest {
         assertEquals(welshLocale, locale);
     }
 
-    @Test
-    @DisplayName("Disabled Welsh resolves to English without reading the session")
-    void testDisabledWelshResolvesToEnglish() {
-        localeResolver = new ChSessionLocaleResolver(sessionProvider, Locale.ENGLISH, false);
-
-        assertEquals(Locale.ENGLISH, localeResolver.resolveLocale(request));
-
-        verify(request).setAttribute("onWelshJourney", false);
-        verifyNoInteractions(sessionProvider);
-    }
-
-    @Test
-    @DisplayName("disabled Welsh does not change the shared language preference in the session")
-    void testDisabledWelshDoesNotChangeSession() {
-        localeResolver = new ChSessionLocaleResolver(sessionProvider, Locale.ENGLISH, false);
-
-        localeResolver.setLocale(request, response, Locale.forLanguageTag("cy"));
-
-        verifyNoInteractions(sessionProvider);
-    }
-
     @ParameterizedTest(name = "session lang [{0}] sets onWelshJourney to {1}")
-    @CsvSource(value = {"cy, true", "en, false", "NONE, false"}, nullValues = "NONE")
-    @DisplayName("Enabled Welsh flags a Welsh journey only when the resolved locale is not the default")
+    @CsvSource(value = {"cy, true", "en, true", "NONE, false"}, nullValues = "NONE")
+    @DisplayName("onWelshJourney is set when the session already holds a language")
     void testOnWelshJourneyWhenWelshEnabled(String sessionLang, boolean expectedOnWelshJourney) {
         setupSessionData(sessionLang);
 

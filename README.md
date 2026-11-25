@@ -11,9 +11,11 @@ In order to run the Service locally you'll need the following installed on your 
 ## Configuration
 | Environment variable | Default  | Description |
 | -------------------- |----------| ----------- |
-| `FEATURE_FLAG_WELSH_LANG_ENABLED_171126` | `false` with its value set explicitly per environment in the `ECS service configuration` | Temporary Welsh rollout flag, mapped to `welshLanguage.enabled`. When `true`, enables shared-session language selection and changes through `?lang=cy` or `?lang=en`, and makes the language selector available. When `false` or unset, displays English, hides the selector and ignores language changes without modifying the shared session preference. |
+| `FEATURE_FLAG_WELSH_LANG_ENABLED_171126` | `false` with its value set explicitly per environment in the `ECS service configuration` | Temporary Welsh rollout flag, mapped to `welshLanguage.enabled`. When `true`, the language selector is shown on every journey that uses company lookup. When `false` or unset, the selector is shown only to users whose shared session already holds a language, so journeys that already offer Welsh keep working and English-only journeys are unchanged. |
 
-Welsh language flag removal is tracked in [COM-169](https://companieshouse.atlassian.net/browse/COM-169). Disabling this flag also disables existing Welsh journeys.
+The page always follows the language held in the shared CHS session (`lang`), and `?lang=cy` or `?lang=en` changes it. The flag only controls where the selector is offered.
+
+Flag removal is tracked in [COM-169](https://companieshouse.atlassian.net/browse/COM-169). When removing it, keep `welshLanguage.enabled=true` in `application.properties`: the shared `common-web-java` layout reads that property to show the selector.
 
 
 ## Connecting to the Service
