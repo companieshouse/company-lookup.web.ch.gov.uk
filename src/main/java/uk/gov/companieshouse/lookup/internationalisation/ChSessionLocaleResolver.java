@@ -1,9 +1,6 @@
 package uk.gov.companieshouse.lookup.internationalisation;
 
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.LocaleResolver;
 import uk.gov.companieshouse.session.Session;
 
@@ -11,10 +8,18 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
-@Component
+/**
+ * Resolves the locale from the language preference held in the shared CHS
+ * session (top-level "lang" key), so a choice made in any CHS service is
+ * honoured here and vice versa.
+ *
+ * <p>Built by MessageConfig rather than component scanning: the class has no
+ * Spring wiring of its own, so it can move to common-web-java unchanged.
+ */
 public class ChSessionLocaleResolver implements LocaleResolver {
     // Read by common-web-java's chsBaseLayout: the language selector is shown
     // when welshLanguage.enabled is true or this request attribute is true.
@@ -38,13 +43,14 @@ public class ChSessionLocaleResolver implements LocaleResolver {
     // top-level "lang" key.
     private static final String EXTRA_DATA_SESSION_KEY = "extra_data";
 
-    private SessionProvider sessionProvider;
+    private final SessionProvider sessionProvider;
+    private final Locale defaultLocale;
     private final boolean welshLanguageEnabled;
-    private Locale defaultLocale = Locale.getDefault();
 
-    @Autowired
-    public ChSessionLocaleResolver(SessionProvider sessionProvider, @Value("${welshLanguage.enabled:false}") boolean welshLanguageEnabled) {
-        this.sessionProvider = sessionProvider;
+    public ChSessionLocaleResolver(SessionProvider sessionProvider, Locale defaultLocale,
+            boolean welshLanguageEnabled) {
+        this.sessionProvider = Objects.requireNonNull(sessionProvider, "sessionProvider");
+        this.defaultLocale = Objects.requireNonNull(defaultLocale, "defaultLocale");
         this.welshLanguageEnabled = welshLanguageEnabled;
     }
 
@@ -114,13 +120,5 @@ public class ChSessionLocaleResolver implements LocaleResolver {
         Session session = sessionProvider.getSessionFromContext();
         session.getData().put(LANG_SESSION_KEY, locale.toLanguageTag());
         session.store();
-    }
-
-    public void setSessionProvider(SessionProvider sessionProvider) {
-        this.sessionProvider = sessionProvider;
-    }
-
-    public void setDefaultLocale(Locale defaultLocale) {
-        this.defaultLocale = defaultLocale;
     }
 }

@@ -48,8 +48,7 @@ class ChSessionLocaleResolverTest {
 
     @BeforeEach
     public void setUp() {
-        localeResolver = new ChSessionLocaleResolver(sessionProvider, true);
-        localeResolver.setDefaultLocale(Locale.ENGLISH);
+        localeResolver = new ChSessionLocaleResolver(sessionProvider, Locale.ENGLISH, true);
     }
 
     // Language tag is now stored directly under the top-level shared session
@@ -125,7 +124,7 @@ class ChSessionLocaleResolverTest {
     @DisplayName("Set default locale and resolves to the default locale if no locale is in the session")
     void testSetDefaultLocaleAndResolveDefaultLocale() {
         setupSessionData(null);
-        localeResolver.setDefaultLocale(Locale.US);
+        localeResolver = new ChSessionLocaleResolver(sessionProvider, Locale.US, true);
         Locale locale = localeResolver.resolveLocale(request);
 
         assertEquals(Locale.US, locale);
@@ -161,8 +160,7 @@ class ChSessionLocaleResolverTest {
     @Test
     @DisplayName("Disabled Welsh resolves to English without reading the session")
     void testDisabledWelshResolvesToEnglish() {
-        localeResolver = new ChSessionLocaleResolver(sessionProvider, false);
-        localeResolver.setDefaultLocale(Locale.ENGLISH);
+        localeResolver = new ChSessionLocaleResolver(sessionProvider, Locale.ENGLISH, false);
 
         assertEquals(Locale.ENGLISH, localeResolver.resolveLocale(request));
 
@@ -173,7 +171,7 @@ class ChSessionLocaleResolverTest {
     @Test
     @DisplayName("disabled Welsh does not change the shared language preference in the session")
     void testDisabledWelshDoesNotChangeSession() {
-        localeResolver = new ChSessionLocaleResolver(sessionProvider, false);
+        localeResolver = new ChSessionLocaleResolver(sessionProvider, Locale.ENGLISH, false);
 
         localeResolver.setLocale(request, response, Locale.forLanguageTag("cy"));
 
