@@ -12,6 +12,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 @Component
 public class ChSessionLocaleResolver implements LocaleResolver {
@@ -20,6 +21,10 @@ public class ChSessionLocaleResolver implements LocaleResolver {
     static final String ON_WELSH_JOURNEY_ATTRIBUTE = "onWelshJourney";
 
     private static final String LANG_SESSION_KEY = "lang";
+
+    // The "lang" session key is shared with other CHS services, so only
+    // languages this service can render are written to it (?lang=fr is ignored).
+    private static final Set<String> SUPPORTED_LANGUAGES = Set.of("en", "cy");
 
     // TEMPORARY (IDVA6-2788): some CHS services (e.g. the Node.js sibling
     // company-lookup.web.ch.gov.uk and others listed in the ticket) still
@@ -51,11 +56,17 @@ public class ChSessionLocaleResolver implements LocaleResolver {
         return locale;
     }
 
+    // A null locale (?lang= with no value) is ignored rather than clearing a
+    // preference that other CHS services also rely on.
     @Override
     public void setLocale(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, Locale locale) {
-        if (isWelshLanguageEnabled()) {
+        if (isWelshLanguageEnabled() && isSupported(locale)) {
             setLocaleInSession(locale);
         }
+    }
+
+    private static boolean isSupported(Locale locale) {
+        return locale != null && SUPPORTED_LANGUAGES.contains(locale.getLanguage());
     }
 
     // TEMPORARY (COM-169): the only place the Welsh rollout flag is checked.

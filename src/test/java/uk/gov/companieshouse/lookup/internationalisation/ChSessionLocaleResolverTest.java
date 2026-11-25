@@ -6,6 +6,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.NullSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.companieshouse.session.Session;
@@ -187,5 +189,17 @@ class ChSessionLocaleResolverTest {
         localeResolver.resolveLocale(request);
 
         verify(request).setAttribute("onWelshJourney", expectedOnWelshJourney);
+    }
+
+    @ParameterizedTest(name = "[{0}]")
+    @NullSource
+    @ValueSource(strings = {"fr", "und"})
+    @DisplayName("Missing or unsupported languages are not written to the shared session")
+    void testUnsupportedLocaleIsNotStored(String languageTag) {
+        Locale locale = languageTag == null ? null : Locale.forLanguageTag(languageTag);
+
+        localeResolver.setLocale(request, response, locale);
+
+        verifyNoInteractions(sessionProvider);
     }
 }

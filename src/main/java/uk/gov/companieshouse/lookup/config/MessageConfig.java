@@ -38,6 +38,8 @@ public class MessageConfig implements WebMvcConfigurer {
     public LocaleChangeInterceptor localeChangeInterceptor() {
         var localeChangeInterceptor = new LocaleChangeInterceptor();
         localeChangeInterceptor.setParamName("lang");
+        // Ignore malformed values such as ?lang=<script> instead of returning a 500 error page.
+        localeChangeInterceptor.setIgnoreInvalidLocale(true);
         return localeChangeInterceptor;
     }
 
